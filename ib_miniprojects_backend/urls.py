@@ -36,6 +36,7 @@ for app_name in apps:
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(api)),
+    
 ]
 
 urlpatterns += [

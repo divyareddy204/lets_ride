@@ -1,212 +1,918 @@
 {
-        "swagger": "2.0",
-        "host": "127.0.0.1:8000",
-        "basePath": "/api/lets_ride/",
-        "info": {
-            "version": "1.0.0",
-            "title": "Simple API",
-            "description": "A simple API to learn how to write OpenAPI Specification"
-        },
-        "schemes": [
-            "http"
-        ],
-        "consumes": [
-            "application/json"
-        ],
-        "produces": [
-            "application/json"
-        ],
-        "securityDefinitions": {
-            "oauth": {
-                "tokenUrl": "http://auth.ibtspl.com/oauth2/",
-                "flow": "password",
-                "scopes": {
-                    "read": "read users",
-                    "write": "create users",
-                    "update": "update users",
-                    "delete": "delete users"
+    "swagger": "2.0",
+    "host": "127.0.0.1:8000",
+    "basePath": "/lets_ride/",
+    "info": {
+        "version": "1.0.0",
+        "title": "Simple API",
+        "description": "A simple API to learn how to write OpenAPI Specification"
+    },
+    "schemes": [
+        "https",
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "securityDefinitions": {
+        "oauth": {
+            "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+            "flow": "password",
+            "scopes": {
+                "read": "read users",
+                "write": "create users",
+                "update": "update users",
+                "delete": "delete users",
+                "superuser": "super user permission"
+            },
+            "type": "oauth2"
+        }
+    },
+    "definitions": {
+        "UserSignUpFields": {
+            "type": "object",
+            "properties": {
+                "mobile_number": {
+                    "type": "string"
                 },
-                "type": "oauth2"
+                "user_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "user_name",
+                "mobile_number",
+                "password"
+            ]
+        },
+        "UserDetails": {
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string"
+                },
+                "mobile_number": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "user_name",
+                "mobile_number",
+                "password"
+            ]
+        },
+        "UserLoginResponse": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "user_id",
+                "access_token",
+                "refresh_token",
+                "expires_in"
+            ]
+        },
+        "ChangePasswordFields": {
+            "type": "object",
+            "properties": {
+                "old_passward": {
+                    "type": "string"
+                },
+                "new_passward": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "old_passward",
+                "new_passward"
+            ]
+        },
+        "RequestFields": {
+            "type": "object",
+            "properties": {
+                "source": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "from_datetime": {
+                    "type": "string",
+                    "format": "date - time"
+                },
+                "flexible": {
+                    "type": "boolean"
+                },
+                "to_datetime": {
+                    "type": "string",
+                    "format": "date - time"
+                },
+                "datetime": {
+                    "type": "string",
+                    "format": "date - time"
+                }
+            },
+            "required": [
+                "source",
+                "destination",
+                "flexible"
+            ]
+        },
+        "NoOfSeats": {
+            "type": "object",
+            "properties": {
+                "no_of_seats": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "no_of_seats"
+            ]
+        },
+        "NoOfAssets": {
+            "type": "object",
+            "properties": {
+                "no_of_assets": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "no_of_assets"
+            ]
+        },
+        "Limit": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "limit"
+            ]
+        },
+        "OffSet": {
+            "type": "object",
+            "properties": {
+                "offset": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "offset"
+            ]
+        },
+        "NoOfSeatsAvailable": {
+            "type": "object",
+            "properties": {
+                "no_of_seats_available": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "no_of_seats_available"
+            ]
+        },
+        "AssetsQuantity": {
+            "type": "object",
+            "properties": {
+                "assets_quantity": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "assets_quantity"
+            ]
+        },
+        "LuggageQuantity": {
+            "type": "object",
+            "properties": {
+                "luggage_quantity": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "luggage_quantity"
+            ]
+        },
+        "SensitivityType": {
+            "type": "object",
+            "properties": {
+                "sensitivity": {
+                    "type": "string",
+                    "enum": [
+                        "Highly_Sensitive",
+                        "Sensitive",
+                        "Normal"
+                    ]
+                }
+            },
+            "required": [
+                "sensitivity"
+            ]
+        },
+        "AssertTypeField": {
+            "type": "object",
+            "properties": {
+                "asset_type": {
+                    "type": "string",
+                    "enum": [
+                        "parcel",
+                        "bags",
+                        "others"
+                    ]
+                }
+            },
+            "required": [
+                "asset_type"
+            ]
+        },
+        "MediumField": {
+            "type": "object",
+            "properties": {
+                "medium": {
+                    "type": "string",
+                    "enum": [
+                        "Bus",
+                        "Train",
+                        "Flight"
+                    ]
+                }
+            },
+            "required": [
+                "medium"
+            ]
+        },
+        "DeliverPerson": {
+            "type": "object",
+            "properties": {
+                "deliver_person": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "deliver_person"
+            ]
+        },
+        "ShareTravelInfoDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/AssetsQuantity"
+                },
+                {
+                    "$ref": "#/definitions/MediumField"
+                }
+            ]
+        },
+        "ShareRideDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/AssetsQuantity"
+                },
+                {
+                    "$ref": "#/definitions/NoOfSeatsAvailable"
+                }
+            ]
+        },
+        "RideRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/NoOfSeats"
+                },
+                {
+                    "$ref": "#/definitions/LuggageQuantity"
+                }
+            ]
+        },
+        "AcceptedPerson": {
+            "type": "object",
+            "properties": {
+                "mobile_number": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mobile_number",
+                "user_name"
+            ]
+        },
+        "MyRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RideRequestDetails"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "accepted_person": {
+                            "$ref": "#/definitions/AcceptedPerson"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/Status"
+                }
+            ]
+        },
+        "MyRideRequestDetailsList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/MyRequestDetails"
             }
         },
-        "security": [],
-        "definitions": {
-            "TodoId": {
-                "type": "object",
-                "properties": {
-                    "id": {
+        "MyRideRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/Count"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "ride_requests": {
+                            "$ref": "#/definitions/MyRideRequestDetailsList"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/OffSet"
+                },
+                {
+                    "$ref": "#/definitions/Limit"
+                }
+            ]
+        },
+        "Count": {
+            "type": "object",
+            "properties": {
+                "total_no_of_requests": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "Status": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "MatchingRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RideRequestDetails"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "matched_person": {
+                            "$ref": "#/definitions/AcceptedPerson"
+                        }
+                    }
+                }
+            ]
+        },
+        "MatchingAssetRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/NoOfAssets"
+                },
+                {
+                    "$ref": "#/definitions/AssertTypeField"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "matched_person": {
+                            "$ref": "#/definitions/AcceptedPerson"
+                        }
+                    }
+                }
+            ]
+        },
+        "MatchingRequestDetailsList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/MatchingRequestDetails"
+            }
+        },
+        "MatchingAssetDetailsList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/MatchingAssetRequestDetails"
+            }
+        },
+        "MyAssetRequestDetailsList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/MyAssetTransportRequest"
+            }
+        },
+        "MyAssetRequestDetails": {
+            "allOf": [{
+                    "$ref": "#/definitions/Count"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "asset_requests": {
+                            "$ref": "#/definitions/MyAssetRequestDetailsList"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/OffSet"
+                },
+                {
+                    "$ref": "#/definitions/Limit"
+                }
+            ]
+        },
+        "AssetTransportRequestFields": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/NoOfAssets"
+                },
+                {
+                    "$ref": "#/definitions/AssertTypeField"
+                },
+                {
+                    "$ref": "#/definitions/SensitivityType"
+                },
+                {
+                    "$ref": "#/definitions/DeliverPerson"
+                }
+            ]
+        },
+        "MyAssetTransportRequest": {
+            "allOf": [{
+                    "$ref": "#/definitions/RequestFields"
+                },
+                {
+                    "$ref": "#/definitions/NoOfAssets"
+                },
+                {
+                    "$ref": "#/definitions/AssertTypeField"
+                },
+                {
+                    "$ref": "#/definitions/SensitivityType"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "accepted_person": {
+                            "$ref": "#/definitions/AcceptedPerson"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/DeliverPerson"
+                },
+                {
+                    "$ref": "#/definitions/Status"
+                }
+            ]
+        }
+    },
+    "parameters": {
+        "CreateNewUserParameters": {
+            "name": "user",
+            "in": "body",
+            "description": "The user to create.",
+            "schema": {
+                "$ref": "#/definitions/UserSignUpFields"
+            }
+        },
+        "ValidateUserParameters": {
+            "name": "user",
+            "in": "body",
+            "description": "Validate user details.",
+            "schema": {
+                "$ref": "#/definitions/UserDetails"
+            }
+        },
+        "UpdateUserProfileParameters": {
+            "name": "userprofile",
+            "in": "body",
+            "description": "The updated user to create.",
+            "schema": {
+                "$ref": "#/definitions/UserDetails"
+            }
+        },
+        "AssetTransportRequestParameters": {
+            "name": "userprofile",
+            "in": "body",
+            "description": "The updated user to create.",
+            "schema": {
+                "$ref": "#/definitions/AssetTransportRequestFields"
+            }
+        },
+        "ChangePasswordParameters": {
+            "name": "change_password",
+            "in": "body",
+            "description": "change the password with new password",
+            "schema": {
+                "$ref": "#/definitions/ChangePasswordFields"
+            }
+        },
+        "RideRequestParameters": {
+            "name": "ride_request",
+            "in": "body",
+            "description": "create ride_request of the user",
+            "schema": {
+                "$ref": "#/definitions/RideRequestDetails"
+            }
+        },
+        "ShareRideParameters": {
+            "name": "share_ride",
+            "in": "body",
+            "description": "create share_ride",
+            "schema": {
+                "$ref": "#/definitions/ShareRideDetails"
+            }
+        },
+        "ShareTravelInfoParameters": {
+            "name": "share_travel_info",
+            "in": "body",
+            "description": "create share travel info",
+            "schema": {
+                "$ref": "#/definitions/ShareTravelInfoDetails"
+            }
+        }
+    },
+    "responses": {
+        "ValidateUserResponse": {
+            "description": "User Details Validated",
+            "schema": {
+                "$ref": "#/definitions/UserLoginResponse"
+            }
+        },
+        "CreateUserResponse": {
+            "description": "succssfully user created",
+            "schema": {
+                "$ref": "#/definitions/UserLoginResponse"
+            }
+        },
+        "GetUserProfileDetailsResponse": {
+            "description": "User Profile details retrived",
+            "schema": {
+                "$ref": "#/definitions/UserDetails"
+            }
+        },
+        "GetMyRequestsRideResponse": {
+            "description": "My ride requests retrived",
+            "schema": {
+                "$ref": "#/definitions/MyRideRequestDetails"
+            }
+        },
+        "GetMyAssetTranportRequestsResponse": {
+            "description": "My asset transport requests retrived",
+            "schema": {
+                "$ref": "#/definitions/MyAssetRequestDetails"
+            }
+        },
+        "GetMatchingRideRequestsResponse": {
+            "description": "Matching ride requests retrived",
+            "schema": {
+                "$ref": "#/definitions/MatchingRequestDetailsList"
+            }
+        },
+        "MatchingAssetResponse": {
+            "description": "matching asset requests retrived",
+            "schema": {
+                "$ref": "#/definitions/MatchingAssetDetailsList"
+            }
+        }
+    },
+    "paths": {
+        "/signup/v1": {
+            "post": {
+                "operationId": "create_user",
+                "summary": "Create New User",
+                "description": "Creates new user with given details This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/CreateNewUserParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "$ref": "#/responses/CreateUserResponse"
+                    },
+                    "400": {
+                        "description": "Invalid user details"
+                    }
+                }
+            }
+        },
+        "/login/v1": {
+            "post": {
+                "operationId": "user_login",
+                "summary": "Validate User Login Details",
+                "description": "Provide access to the user given valid details in login, This api is not idempotent.",
+                "parameters": [{
+                    "$ref": "#/parameters/ValidateUserParameters"
+                }],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/ValidateUserResponse"
+                    },
+                    "400": {
+                        "description": "Invalid user details"
+                    }
+                }
+            }
+        },
+        "/useprofile/v1": {
+            "get": {
+                "operationId": "get_user_profile",
+                "summary": "Get User Details",
+                "description": "Get Details of user for user profile. This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [
+
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/GetUserProfileDetailsResponse"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "update_user_profile",
+                "summary": "Update User Profile",
+                "description": "Creates user with updated details in user profileThis api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/UpdateUserProfileParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "description": "succssfully user updated"
+                    },
+                    "400": {
+                        "description": "Invalid user details"
+                    }
+                }
+            }
+        },
+        "/user_profile/change_password/v1": {
+            "post": {
+                "operationId": "change_password",
+                "summary": "Change Password",
+                "description": "change old password with new password, This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/ChangePasswordParameters"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "password created successfully"
+                    },
+                    "404": {
+                        "description": "Invalid password details"
+                    }
+                }
+            }
+        },
+        "/ride_request/v1/": {
+            "post": {
+                "operationId": "create_ride_request",
+                "summary": "Create Ride Request",
+                "description": "Create the ride_request with the given details This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/RideRequestParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Ride request created successfully"
+                    },
+                    "400": {
+                        "description": "invalid ride request data"
+                    }
+                }
+            }
+        },
+        "/asset_transport_request/v1/": {
+            "post": {
+                "operationId": "create_asset_transport_request",
+                "summary": "Create Asset Transport Request",
+                "description": "Create assert transport request with the given details This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/AssetTransportRequestParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Asset transport request created successfully"
+                    },
+                    "400": {
+                        "description": "invalid asset transport request data"
+                    }
+                }
+            }
+        },
+        "/ride_share/v1": {
+            "post": {
+                "operationId": "create_share_ride",
+                "summary": "Create Share Ride",
+                "description": "Create the share ride with the given details This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/ShareRideParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Share Ride created successfully"
+                    },
+                    "400": {
+                        "description": "invalid share ride data"
+                    }
+                }
+            }
+        },
+        "/share_travel_info/v1": {
+            "post": {
+                "operationId": "create_share_travel_info",
+                "summary": "Create Share Travel Info",
+                "description": "Create Share Travel Info  with the given details This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                    "$ref": "#/parameters/ShareTravelInfoParameters"
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Share Travel Info created successfully"
+                    },
+                    "400": {
+                        "description": "invalid share travel info"
+                    }
+                }
+            }
+        },
+        "/my_requests/ride/v1": {
+            "get": {
+                "operationId": "get_my_ride_requests",
+                "summary": "Get My Ride Requests",
+                "description": "Get my ride request details. This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Ride Requests offset",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Ride Request limit",
                         "type": "integer"
                     }
-                }
-            },
-            "BasicTodo": {
-                "type": "object",
-                "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "is_completed": {
-                        "type": "boolean"
-                    },
-                    "remind_at": {
-                        "type": "string"
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/GetMyRequestsRideResponse"
                     }
-                },
-                "required": [
-                    "description"
-                ]
-            },
-            "Todo": {
-                "allOf": [
-                    {
-                        "$ref": "#/definitions/BasicTodo"
-                    },
-                    {
-                        "$ref": "#/definitions/TodoId"
-                    }
-                ]
-            }
-        },
-        "parameters": {
-            "TodoId": {
-                "description": "todo id",
-                "in": "path",
-                "name": "id",
-                "required": true,
-                "type": "integer"
-            },
-            "BasicTodo": {
-                "description": "Todo Parameter",
-                "in": "body",
-                "name": "todo",
-                "required": true,
-                "schema": {
-                    "$ref": "#/definitions/BasicTodo"
                 }
             }
         },
-        "responses": {
-            "SuccessResponse": {
-                "description": "success response"
-            }
-        },
-        "paths": {
-            "/todos/": {
-                "get": {
-                    "summary": "Get all todos",
-                    "description": "Returns a list containing all todos.",
-                    "operationId": "get_todos",
-                    "security": [
-                        {
-                            "oauth": [
-                                "read"
-                            ]
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "description": "A list of todos",
-                            "schema": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/Todo"
-                                }
-                            }
-                        }
-                    }
-                },
-                "post": {
-                    "summary": "create a todo",
-                    "description": "Create a todo",
-                    "operationId": "create_todo",
-                    "security": [
-                        {
-                            "oauth": [
-                                "write"
-                            ]
-                        }
-                    ],
-                    "parameters": [
-                        {
-                            "$ref": "#/parameters/BasicTodo"
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "description": "create a todo",
-                            "schema": {
-                                "$ref": "#/definitions/TodoId"
-                            }
-                        }
-                    }
-                }
-            },
-            "/todos/{id}/": {
-                "parameters": [
+        "/my_requests/asset/v1": {
+            "get": {
+                "operationId": "get_my_asset_transport_requests",
+                "summary": "Get My Asset Transport Requests",
+                "description": "Get my request assert transport details. This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [{
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Asset Transport Requests offset",
+                        "type": "integer"
+                    },
                     {
-                        "$ref": "#/parameters/TodoId"
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Asset Transport Requests limit",
+                        "type": "integer"
                     }
                 ],
-                "get": {
-                    "summary": "Get a todo",
-                    "description": "Returns a todo.",
-                    "operationId": "get_todo",
-                    "security": [
-                        {
-                            "oauth": [
-                                "read"
-                            ]
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "description": "A todo",
-                            "schema": {
-                                "$ref": "#/definitions/Todo"
-                            }
-                        }
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/GetMyAssetTranportRequestsResponse"
                     }
-                },
-                "put": {
-                    "parameters": [
-                        {
-                            "$ref": "#/parameters/BasicTodo"
-                        }
-                    ],
-                    "summary": "Updates a todo",
-                    "description": "Updates a todo.",
-                    "operationId": "update_todo",
-                    "security": [
-                        {
-                            "oauth": [
-                                "update"
-                            ]
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "$ref": "#/responses/SuccessResponse"
-                        }
+                }
+            }
+        },
+        "/matching_requests/ride/v1": {
+            "get": {
+                "operationId": "get_matching_ride_requests",
+                "summary": "Get Matching Ride Requests",
+                "description": "Get Matching Ride Request details. This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [
+
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/GetMatchingRideRequestsResponse"
                     }
-                },
-                "delete": {
-                    "summary": "Deletes a todo",
-                    "description": "Deletes a todo.",
-                    "operationId": "delete_todo",
-                    "security": [
-                        {
-                            "oauth": [
-                                "delete"
-                            ]
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "$ref": "#/responses/SuccessResponse"
-                        }
+                }
+            }
+        },
+        "/matching_requests/asset/v1": {
+            "get": {
+                "operationId": "get_matching_asset_requests",
+                "summary": "Get Matching Asset Transport Requests",
+                "description": "Get Matching Asset Transport Request details. This api is not idempotent.",
+                "security": [{
+                    "oauth": [
+                        "superuser"
+                    ]
+                }],
+                "parameters": [
+
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/MatchingAssetResponse"
                     }
                 }
             }
         }
     }
-    
+}

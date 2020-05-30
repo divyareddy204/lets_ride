@@ -1,4 +1,16 @@
-__all__ = []
+from .user import User
+from .shareride import ShareRide
+from .riderequest import RideRequest
+from .sharetravelinfo import ShareTravelInfo
+from .assettransportrequest import AssetTransportRequest
+__all__ = [
+    "User",
+    "ShareTravelInfo",
+    "ShareRide",
+    "AssetTransportRequest",
+    "RideRequest"
+]
+
 
 # class DummyModel(AbstractDateTimeModel):
 #     """
