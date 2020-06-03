@@ -17,9 +17,7 @@ from common.oauth2_storage import OAuth2SQLStorage
 def api_wrapper(*args, **kwargs):
     request_data = kwargs['request_data']
     mobile_number = request_data["mobile_number"]
-    user_name = request_data["user_name"]
     password = request_data["password"]
-
 
     storage = StorageImplementation()
     presenter = PresenterImplementation()
@@ -29,7 +27,6 @@ def api_wrapper(*args, **kwargs):
                                     oauth_storage=oauth_storage)
 
     access_token=interactor.user_login(
-        user_name = user_name,
         password=password,
         mobile_number=mobile_number)
     

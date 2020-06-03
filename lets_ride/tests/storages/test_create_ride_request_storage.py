@@ -15,7 +15,7 @@ def test_create_ride_request_creates_ride_request_object_with_given_details(crea
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
     no_of_seats= 2
     luggage_quantity=2
-    user_id = 4
+    user_id = 2
     storage = StorageImplementation()
 
     #Act

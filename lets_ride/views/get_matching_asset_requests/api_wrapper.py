@@ -1,29 +1,39 @@
+import json
+
+from django.http import HttpResponse
 from django_swagger_utils.drf_server.utils.decorator.interface_decorator \
     import validate_decorator
+
+from lets_ride.interactors.get_matching_asset_requests_interactor import \
+   GetMatchingAssetRequests
+from lets_ride.presenters.presenter_implementation \
+    import PresenterImplementation
+from lets_ride.storages.storage_implementation \
+    import StorageImplementation
 from .validator_class import ValidatorClass
 
 
 @validate_decorator(validator_class=ValidatorClass)
 def api_wrapper(*args, **kwargs):
-    # ---------MOCK IMPLEMENTATION---------
+    user = kwargs['user']
+    query_params=kwargs["request_query_params"]
+    print("query_params_limit*******************",query_params.limit)
+    print("query_params_offset*******************",query_params.offset)
+    limit = query_params.limit
+    offset = query_params.offset
 
-    try:
-        from lets_ride.views.get_matching_asset_requests.tests.test_case_01 \
-            import TEST_CASE as test_case
-    except ImportError:
-        from lets_ride.views.get_matching_asset_requests.tests.test_case_01 \
-            import test_case
+    user_id = user.id
 
-    from django_swagger_utils.drf_server.utils.server_gen.mock_response \
-        import mock_response
-    try:
-        from lets_ride.views.get_matching_asset_requests.request_response_mocks \
-            import RESPONSE_200_JSON
-    except ImportError:
-        RESPONSE_200_JSON = ''
-    response_tuple = mock_response(
-        app_name="lets_ride", test_case=test_case,
-        operation_name="get_matching_asset_requests",
-        kwargs=kwargs, default_response_body=RESPONSE_200_JSON,
-        group_name="")
-    return response_tuple[1]
+    storage = StorageImplementation()
+    presenter = PresenterImplementation()
+    interactor = GetMatchingAssetRequests(storage=storage, presenter=presenter)
+
+    request_dict=interactor.get_matching_asset_requests(
+        user_id=user_id,
+        offset=offset,
+        limit=limit
+    )
+    #print(request_dict)
+
+    response_data = json.dumps(request_dict)
+    return HttpResponse(response_data, status=200)

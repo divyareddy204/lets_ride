@@ -14,13 +14,25 @@ class RideRequestDto:
     source: str
     destination: str
     flexible: bool
-    from_datetime: str
-    to_datetime: str
-    datetime: str
+    from_datetime: datetime
+    to_datetime: datetime
+    datetime: datetime
     no_of_seats: int
     luggage_quantity: int
-    accepted_person_id: int
-    
+    accepted_person_id: Optional[int]
+
+@dataclass()
+class RideShareDto:
+    user_id: int
+    source: str
+    destination: str
+    flexible: bool
+    from_datetime: datetime
+    to_datetime: datetime
+    datetime: datetime
+    no_of_seats_available: int
+    assets_quantity: int
+
 @dataclass()
 class RideRequestWithStatusDto:
     ride_request_dto: RideRequestDto
@@ -39,14 +51,14 @@ class AssetRequestDto:
     source: str
     destination: str
     flexible: bool
-    from_datetime: str
-    to_datetime: str
-    datetime: str
+    from_datetime: datetime
+    to_datetime: datetime
+    datetime: datetime
     no_of_assets: int
     asset_type: str
     sensitivity: str
     deliver_person: str
-    accepted_person_id: int
+    accepted_person_id: Optional[int]
 
 @dataclass()
 class AssetRequestWithStatusDto:
@@ -59,3 +71,15 @@ class MyAssetRequestsDto:
     request_dtos: [AssetRequestWithStatusDto]
     limit: int
     offset: int
+
+@dataclass()
+class MatchingRideRequestsDto:
+    matchig_requests: [RideRequestDto]
+    request_type: str
+
+@dataclass()
+class UserAccessDto:
+    user_id: int
+    access_token: str
+    refresh_token: str
+    expires_in: datetime

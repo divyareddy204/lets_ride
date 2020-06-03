@@ -18,7 +18,7 @@ def test_create_asset_transport_request_creates_asset_transport_request_object_w
     asset_type = AssetType.parcel.value
     sensitivity = SensitivityType.HighlySensitive.value
     deliver_person = "ram"
-    user_id = 4
+    user_id = 1
     storage = StorageImplementation()
 
     #Act

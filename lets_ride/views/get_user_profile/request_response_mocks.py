@@ -3,8 +3,8 @@
 
 RESPONSE_200_JSON = """
 {
-    "user_name": "string",
     "mobile_number": "string",
+    "user_name": "string",
     "password": "string"
 }
 """

@@ -3,6 +3,9 @@ class InvalidPostId(Exception):
 class InvalidUserName(Exception):
     pass
 
+class InvalidMobileNumber(Exception):
+    pass
+
 class InvalidPassword(Exception):
     pass
 

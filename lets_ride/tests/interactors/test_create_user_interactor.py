@@ -18,7 +18,7 @@ user_auth_dto={
 
 @patch.object(OAuthUserAuthTokensService, "create_user_auth_tokens",
               return_value=user_auth_dto)
-def test_validate_user(create_user_auth_tokens):
+def validate_user(create_user_auth_tokens):
 
     #Arrange
     mobile_number = "0932825493"
@@ -52,6 +52,7 @@ def test_validate_user(create_user_auth_tokens):
 
     #Assert
     print(response)
+    print("**************************")
     print(expected_output)
     storage.validate_user_name.assert_called_once_with(
        user_name=user_name)
@@ -62,7 +63,7 @@ def test_validate_user(create_user_auth_tokens):
 
 @patch.object(OAuthUserAuthTokensService, "create_user_auth_tokens",
               return_value=user_auth_dto)
-def test_validate_password_returns_user_id(oauth_user_auth_tokens_service):
+def validate_password_returns_user_id(oauth_user_auth_tokens_service):
 
     #Arrange
     mobile_number = "0932825493"
@@ -89,13 +90,15 @@ def test_validate_password_returns_user_id(oauth_user_auth_tokens_service):
         user_name=user_name,
         password=password
         )
-
+    print(response)
+    print("**************************")
+    print(expected_output)
     #Assert
     storage.validate_password_for_user.assert_called_once_with(
        user_name=user_name,
        password=password)
     presenter.create_user_response.assert_called_once_with(
-        user_access_token_dto=user_auth_dto)
+        user_access_dto=user_auth_dto)
     service.create_user_auth_tokens.assert_called_once_with(user_id=user_id)
     assert response == expected_output
 

@@ -9,7 +9,7 @@ import datetime
 from django.db.models import Q
 from common.oauth2_storage import OAuth2SQLStorage
 from lets_ride.interactors.storages.dtos \
-    import UserDto, RideRequestDto, AssetRequestDto, RideRequestDto,\
+    import UserDto, RideRequestDto, AssetRequestDto, RideRequestDto\
     RideShareDto
 from lets_ride.constants.enums import AssetType, SensitivityType, MediumType
 
@@ -175,12 +175,12 @@ class StorageImplementation(PostStorageInterface):
             user_id: int,
             limit: int,
             offset: int):
-
+    
         list_of_ride_request_objs = RideRequest.objects.filter(
             Q(to_datetime__gt=datetime.datetime.now(),flexible=True,)|Q(
             datetime__gt=datetime.datetime.now(),
             flexible=False),user_id=user_id)[offset:limit]
-
+            
         return self.get_ride_request_dtos_for_given_ride_request_objects(
             list_of_ride_request_objs)
 
@@ -234,44 +234,42 @@ class StorageImplementation(PostStorageInterface):
         for request in list_of_ride_request_objs:
             if request:
                 if request.flexible:
-                    ride_request_dto = self.\
-                    convert_ride_request_obj_to_dto_with_flexible_timings(request)
+                    ride_request_dto = self.convert_ride_request_obj_to_dto_with_flexible_timings(request)
                     list_of_ride_requests.append(ride_request_dto)
                 else:
-                    ride_request_dto = self.\
-                    convert_ride_request_obj_to_dto_without_flexible_timings(request)
+                    ride_request_dto = self.convert_ride_request_obj_to_dto_without_flexible_timings(request)
                     list_of_ride_requests.append(ride_request_dto)
         return list_of_ride_requests
 
 
     def convert_ride_request_obj_to_dto_with_flexible_timings(self, request):
         ride_request_dto=RideRequestDto(
-            user_id=request.user_id,
-            source=request.source,
-            destination=request.destination,
-            flexible=request.flexible,
-            datetime=request.datetime,
-            from_datetime=request.from_datetime.replace(tzinfo=None),
-            to_datetime=request.to_datetime.replace(tzinfo=None),
-            no_of_seats=request.no_of_seats,
-            luggage_quantity=request.luggage_quantity,
-            accepted_person_id=request.accepted_person_id
-            )
+                        user_id=request.user_id,
+                        source=request.source,
+                        destination=request.destination,
+                        flexible=request.flexible,
+                        datetime=request.datetime,
+                        from_datetime=request.from_datetime.replace(tzinfo=None),
+                        to_datetime=request.to_datetime.replace(tzinfo=None),
+                        no_of_seats=request.no_of_seats,
+                        luggage_quantity=request.luggage_quantity,
+                        accepted_person_id=request.accepted_person_id
+                        )
         return ride_request_dto
 
     def convert_ride_request_obj_to_dto_without_flexible_timings(self, request):
         ride_request_dto = RideRequestDto(
-            user_id=request.user_id,
-            source=request.source,
-            destination=request.destination,
-            flexible=request.flexible,
-            datetime=request.datetime.replace(tzinfo=None),
-            from_datetime=request.from_datetime,
-            to_datetime=request.to_datetime,
-            no_of_seats=request.no_of_seats,
-            luggage_quantity=request.luggage_quantity,
-            accepted_person_id=request.accepted_person_id
-            )
+                        user_id=request.user_id,
+                        source=request.source,
+                        destination=request.destination,
+                        flexible=request.flexible,
+                        datetime=request.datetime.replace(tzinfo=None),
+                        from_datetime=request.from_datetime,
+                        to_datetime=request.to_datetime,
+                        no_of_seats=request.no_of_seats,
+                        luggage_quantity=request.luggage_quantity,
+                        accepted_person_id=request.accepted_person_id
+                        )
         return ride_request_dto
 
     def get_total_requests(self):
@@ -300,7 +298,7 @@ class StorageImplementation(PostStorageInterface):
             Q(flexible=True,to_datetime__gt=datetime.datetime.now())|
             Q(flexible=False, datetime__gt=datetime.datetime.now()),
             user_id=user_id)[offset:limit]
-
+        
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
 
@@ -310,10 +308,10 @@ class StorageImplementation(PostStorageInterface):
             limit: int,
             offset: int,
             status: str):
-
+                
         list_of_asset_request_objs = AssetTransportRequest.objects.filter(
             user_id=user_id,accepted_person__isnull=False)[offset:limit]
-
+        
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
 
@@ -322,7 +320,7 @@ class StorageImplementation(PostStorageInterface):
             limit: int,
             offset: int,
             sort_by: datetime):
-
+                
         if sort_by=="TO_DATETIME":
             list_of_asset_request_objs=AssetTransportRequest.\
             objects.filter(user_id=user_id,flexible=True)\
@@ -340,7 +338,7 @@ class StorageImplementation(PostStorageInterface):
             limit: int,
             offset: int,
             sort_by: str):
-
+                
         if sort_by=="TO_DATETIME":
             list_of_asset_request_objs=AssetTransportRequest.\
             objects.filter(user_id=user_id,flexible=True)\
@@ -364,30 +362,28 @@ class StorageImplementation(PostStorageInterface):
         list_of_asset_requests=[]
         for request in list_of_asset_request_objs:
             if request.flexible:
-                asset_request_dto = self.\
-                convert_asset_request_obj_to_dto_with_flexible_timings(request)
+                asset_request_dto = self.convert_asset_request_obj_to_dto_with_flexible_timings(request)
                 list_of_asset_requests.append(asset_request_dto)
             else:
-                asset_request_dto = self.\
-                convert_asset_request_obj_to_dto_without_flexible_timings(request)
+                asset_request_dto = self.convert_asset_request_obj_to_dto_without_flexible_timings(request)
                 list_of_asset_requests.append(asset_request_dto)
         return list_of_asset_requests
 
     def convert_asset_request_obj_to_dto_with_flexible_timings(self,request):
         assetrequestdto =AssetRequestDto(
-            user_id=request.user_id,
-            source=request.source,
-            destination=request.destination,
-            flexible=request.flexible,
-            datetime=request.datetime,
-            from_datetime=request.from_datetime.replace(tzinfo=None),
-            to_datetime=request.to_datetime.replace(tzinfo=None),
-            no_of_assets=request.no_of_assets,
-            asset_type=request.asset_type,
-            sensitivity=request.sensitivity,
-            deliver_person=request.deliver_person,
-            accepted_person_id=request.accepted_person_id
-            )
+                        user_id=request.user_id,
+                        source=request.source,
+                        destination=request.destination,
+                        flexible=request.flexible,
+                        datetime=request.datetime,
+                        from_datetime=request.from_datetime.replace(tzinfo=None),
+                        to_datetime=request.to_datetime.replace(tzinfo=None),
+                        no_of_assets=request.no_of_assets,
+                        asset_type=request.asset_type,
+                        sensitivity=request.sensitivity,
+                        deliver_person=request.deliver_person,
+                        accepted_person_id=request.accepted_person_id
+                        )
         return assetrequestdto
 
     def convert_asset_request_obj_to_dto_without_flexible_timings(self, request):
@@ -407,12 +403,10 @@ class StorageImplementation(PostStorageInterface):
             )
         return assetrequestdto
 
-    def get_accepted_persons_dtos(self,
-    list_of_accepted_persons_ids: List[int]):
+    def get_accepted_persons_dtos(self, list_of_accepted_persons_ids: List[int]):
         user_dtos_list = []
         if list_of_accepted_persons_ids:
-            user_objs = list(User.objects.filter(
-                id__in=list_of_accepted_persons_ids))
+            user_objs = list(User.objects.filter(id__in=list_of_accepted_persons_ids))
             for user_obj in user_objs:
                 user_dto = UserDto(
                     user_id=user_obj.id,
@@ -421,8 +415,8 @@ class StorageImplementation(PostStorageInterface):
                     )
                 user_dtos_list.append(user_dto)
         return user_dtos_list
-
-
+    
+    
     def get_user_ride_shares_from_current_day(self, user_id: int):
         current_datetime= datetime.datetime.now()
         ride_share_objects=ShareRide.objects\
@@ -430,14 +424,14 @@ class StorageImplementation(PostStorageInterface):
         Q(flexible=True,to_datetime__gt=current_datetime),user_id=3)
         return self.convert_ride_share_objects_to_list_of_dtos(ride_share_objects)
 
-
+    
     def convert_ride_share_objects_to_list_of_dtos(self, share_objs):
         list_of_share_dtos=[]
         for share_obj in share_objs:
             share_dto = self.convert_share_object_to_dto(share_obj)
             list_of_share_dtos.append(share_dto)
         return list_of_share_dtos
-
+    
     def convert_share_object_to_dto(self,share_object):
         ride_share_dto = RideShareDto(
             user_id=share_object.user_id,
@@ -447,28 +441,22 @@ class StorageImplementation(PostStorageInterface):
             datetime=share_object.datetime,
             from_datetime=share_object.from_datetime,
             to_datetime=share_object.to_datetime,
-            no_of_seats_available=share_object.no_of_seats_available,
+            no_of_seats_Available=share_object.no_of_seats_available,
             assets_quantity=share_object.assets_quantity,
             )
         return ride_share_dto
-
-
+    
+    
     def get_matching_ride_requests_dto_with_flexible_timings(
-        self,
+        self, 
         ride_share_to_datetime: datetime,
         ride_share_from_datetime: datetime,
-        ride_share_source: str,ride_share_destination: str,
-        limit: int, offset: int
-        ):
-
-        matching_ride_request_objs = RideRequest.objects.filter(
-            Q(from_datetime__gte=ride_share_from_datetime,
-              from_datetime__lte=ride_share_to_datetime)|
-            Q(to_datetime__lte=ride_share_to_datetime,
-              to_datetime__gtee=ride_share_from_datetime),
+        ride_share_source: str,ride_share_destination: str):
+        matching_ride_request_objs = RideRequestDto.objects.filter(
+            from_datetime__lt=ride_share_to_datetime,from_datetime__gte=from_datetime,
+            to_datetime__lt=to_datetime,from_datetime__gte=from_datetime,
             source=ride_share_source,destination=ride_share_destination
-            )[offset:limit]
-    
+            )
         list_of_ride_requests=[]
         for request in matching_ride_request_objs:
             ride_request_dto = RideRequestDto(
@@ -486,39 +474,11 @@ class StorageImplementation(PostStorageInterface):
             list_of_ride_requests.append(ride_request_dto)
         return list_of_ride_requests
 
-    def get_matching_ride_requests_dto_without_flexible_timings(
-        self,
-        ride_share_datetime: datetime,
-        ride_share_source: str, ride_share_destination: str,
-        limit: int, offset: int):
-
-        matching_ride_request_objs = RideRequest.objects.filter(
-            datetime=ride_share_datetime,
-            source=ride_share_source,
-            destination=ride_share_destination
-            )[offset:limit]
-
-        list_of_ride_requests=[]
-        for request in matching_ride_request_objs:
-            ride_request_dto = RideRequestDto(
-                user_id=request.user_id,
-                source=request.source,
-                destination=request.destination,
-                flexible=request.flexible,
-                datetime=str(request.datetime),
-                from_datetime=str(request.from_datetime),
-                to_datetime=str(request.to_datetime),
-                no_of_seats=request.no_of_seats,
-                luggage_quantity=request.luggage_quantity,
-                accepted_person_id=request.accepted_person_id
-                )
-            list_of_ride_requests.append(ride_request_dto)
-        return list_of_ride_requests
 
     def get_user_dtos(self, matched_persons_ids: List[int]):
         user_dtos_list = []
         if matched_persons_ids:
-            user_objs = list(User.objects.filter(id__in=matched_persons_ids))
+            user_objs = list(User.objects.filter(id__in=[matched_persons_ids]))
             for user_obj in user_objs:
                 user_dto = UserDto(
                     user_id=user_obj.id,
@@ -527,55 +487,3 @@ class StorageImplementation(PostStorageInterface):
                     )
                 user_dtos_list.append(user_dto)
         return user_dtos_list
-
-    def get_matching_asset_requests_dto_with_flexible_timings(
-        self,
-        ride_share_to_datetime: datetime,
-        ride_share_from_datetime: datetime,
-        ride_share_source: str,ride_share_destination: str,
-        limit: int,offset: int):
-        matching_asset_request_objs = AssetTransportRequest.objects.filter(
-            Q(from_datetime__gte=ride_share_from_datetime,
-              from_datetime__lte=ride_share_to_datetime)|
-            Q(to_datetime__lte=ride_share_to_datetime,
-              to_datetime__gtee=ride_share_from_datetime),
-            source=ride_share_source,destination=ride_share_destination
-            )[offset:limit]
-        return self.get_list_of_asset_dtos_to_asset_request_objs(
-            matching_asset_request_objs)
-
-
-    def get_matching_asset_requests_dto_without_flexible_timings(
-        self,
-        ride_share_datetime: datetime,
-        ride_share_source: str,ride_share_destination: str,
-        limit: int,offset: int):
-        print("*********************STORAGE*******************************",ride_share_datetime,ride_share_source,ride_share_destination)
-        matching_asset_request_objs = AssetTransportRequest.objects.filter(
-            datetime=ride_share_datetime,
-            source=ride_share_source,
-            destination=ride_share_destination
-            )[offset:limit]
-        return self.get_list_of_asset_dtos_to_asset_request_objs(
-            matching_asset_request_objs)
-
-    def get_list_of_asset_dtos_to_asset_request_objs(self,
-        matching_asset_request_objs):
-        list_of_asset_requests=[]
-        for request in matching_asset_request_objs:
-            asset_request_dto = AssetRequestDto(
-                user_id=request.user_id,
-                source=request.source,
-                destination=request.destination,
-                flexible=request.flexible,
-                datetime=str(request.datetime),
-                from_datetime=str(request.from_datetime),
-                to_datetime=str(request.to_datetime),
-                no_of_assets=request.no_of_assets,
-                deliver_person=request.deliver_person,
-                asset_type=request.asset_type,
-                sensitivity=request.sensitivity,
-                accepted_person_id=request.accepted_person_id
-                )
-            list_of_asset_requests.append(asset_request_dto)
-        return list_of_asset_requests

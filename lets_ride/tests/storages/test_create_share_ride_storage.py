@@ -15,7 +15,7 @@ def test_create_share_ride_creates_share_ride__object_with_given_details(create_
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
     no_of_seats_available= 2
     assets_quantity=2
-    user_id = 4
+    user_id = 2
     storage = StorageImplementation()
 
     #Act

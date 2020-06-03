@@ -19,6 +19,9 @@ def api_wrapper(*args, **kwargs):
     query_params=kwargs["request_query_params"]
     limit = query_params.limit
     offset = query_params.offset
+    status = query_params.status
+    sort_by = query_params.sort_by
+    order = query_params.order
     user_id = user.id
 
     storage = StorageImplementation()
@@ -28,6 +31,9 @@ def api_wrapper(*args, **kwargs):
     request_dict=interactor.get_my_asset_requests(
         offset =offset,
         limit=limit,
+        order=order,
+        sort_by=sort_by,
+        status = status,
         user_id = user_id
         )
     response_data = json.dumps(request_dict)

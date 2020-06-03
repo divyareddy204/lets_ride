@@ -54,9 +54,6 @@
         "UserDetails": {
             "type": "object",
             "properties": {
-                "user_name": {
-                    "type": "string"
-                },
                 "mobile_number": {
                     "type": "string"
                 },
@@ -65,7 +62,6 @@
                 }
             },
             "required": [
-                "user_name",
                 "mobile_number",
                 "password"
             ]
@@ -411,6 +407,12 @@
                     "$ref": "#/definitions/AssertTypeField"
                 },
                 {
+                    "$ref": "#/definitions/SensitivityType"
+                },
+                {
+                    "$ref": "#/definitions/DeliverPerson"
+                },
+                {
                     "type": "object",
                     "properties": {
                         "matched_person": {
@@ -431,6 +433,40 @@
             "items": {
                 "$ref": "#/definitions/MatchingAssetRequestDetails"
             }
+        },
+        "MatchingRideCompleteDetails": {
+            "allOf": [{
+                    "type": "object",
+                    "properties": {
+                        "matching_asset_requests": {
+                            "$ref": "#/definitions/MatchingRequestDetailsList"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/OffSet"
+                },
+                {
+                    "$ref": "#/definitions/Limit"
+                }
+            ]
+        },
+        "MatchingAssetCompleteDetails": {
+            "allOf": [{
+                    "type": "object",
+                    "properties": {
+                        "matching_asset_requests": {
+                            "$ref": "#/definitions/MatchingAssetDetailsList"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/OffSet"
+                },
+                {
+                    "$ref": "#/definitions/Limit"
+                }
+            ]
         },
         "MyAssetRequestDetailsList": {
             "type": "array",
@@ -588,7 +624,7 @@
         "GetUserProfileDetailsResponse": {
             "description": "User Profile details retrived",
             "schema": {
-                "$ref": "#/definitions/UserDetails"
+                "$ref": "#/definitions/UserSignUpFields"
             }
         },
         "GetMyRequestsRideResponse": {
@@ -606,13 +642,13 @@
         "GetMatchingRideRequestsResponse": {
             "description": "Matching ride requests retrived",
             "schema": {
-                "$ref": "#/definitions/MatchingRequestDetailsList"
+                "$ref": "#/definitions/MatchingRideCompleteDetails"
             }
         },
         "MatchingAssetResponse": {
             "description": "matching asset requests retrived",
             "schema": {
-                "$ref": "#/definitions/MatchingAssetDetailsList"
+                "$ref": "#/definitions/MatchingAssetCompleteDetails"
             }
         }
     },
@@ -835,6 +871,24 @@
                         "in": "query",
                         "description": "Ride Request limit",
                         "type": "integer"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Ride Request status",
+                        "type": "string"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Ride Requests sort_by",
+                        "type": "string"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Ride Requests order",
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -865,6 +919,24 @@
                         "in": "query",
                         "description": "Asset Transport Requests limit",
                         "type": "integer"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Ride Request status",
+                        "type": "string"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Ride Requests sort_by",
+                        "type": "string"
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Ride Requests order",
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -884,8 +956,18 @@
                         "superuser"
                     ]
                 }],
-                "parameters": [
-
+                "parameters": [{
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Matching Ride Requests offset",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Matching Ride Requests limit",
+                        "type": "integer"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -904,8 +986,18 @@
                         "superuser"
                     ]
                 }],
-                "parameters": [
-
+                "parameters": [{
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Matching Asset Requests offset",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Matching Asset Requests limit",
+                        "type": "integer"
+                    }
                 ],
                 "responses": {
                     "200": {

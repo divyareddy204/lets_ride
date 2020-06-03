@@ -16,7 +16,7 @@ def test_create_share_travel_info_creates_share_travel_info_object_with_given_de
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
     assets_quantity=2
     medium = MediumType.Bus.value
-    user_id = 4
+    user_id = 1
     storage = StorageImplementation()
 
     #Act

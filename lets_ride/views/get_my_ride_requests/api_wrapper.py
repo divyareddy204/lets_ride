@@ -17,18 +17,27 @@ from .validator_class import ValidatorClass
 def api_wrapper(*args, **kwargs):
     user = kwargs['user']
     query_params=kwargs["request_query_params"]
+    print("query_params_status*******************",query_params.status)
     limit = query_params.limit
     offset = query_params.offset
+    status = query_params.status
+    sort_by = query_params.sort_by
+    order = query_params.order
     user_id = user.id
 
     storage = StorageImplementation()
     presenter = PresenterImplementation()
-    interactor = GetMyRideRequestsInteractor(storage=storage, presenter=presenter)
+    interactor = GetMyRideRequestsInteractor(storage=storage,
+                                             presenter=presenter)
 
     request_dict=interactor.get_my_ride_requests(
         offset =offset,
         limit=limit,
-        user_id = user_id
+        user_id = user_id,
+        order=order,
+        sort_by=sort_by,
+        status = status
         )
+    print(request_dict)
     response_data = json.dumps(request_dict)
     return HttpResponse(response_data, status=200)

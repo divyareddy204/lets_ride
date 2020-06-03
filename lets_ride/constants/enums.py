@@ -25,6 +25,7 @@ class SensitivityType(BaseEnumClass, enum.Enum):
     Sensitive = "Sensitive"
     Normal = "Normal"
 
+
 class MediumType(BaseEnumClass, enum.Enum):
     
     Bus = "Bus"
