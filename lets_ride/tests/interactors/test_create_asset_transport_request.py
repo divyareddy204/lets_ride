@@ -13,7 +13,7 @@ def test_asset_transport_request_creates_asset_transport_object():
     
     source = "hyderabad"
     destination = "bangloor"
-    flexible = True
+    is_flexible = True
     datetime = ""
     from_datetime = "2020,5,28,20,00,00"
     to_datetime = "2020,5,29,09,00,00"
@@ -33,7 +33,7 @@ def test_asset_transport_request_creates_asset_transport_object():
     interactor.create_asset_transport_request(
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,
@@ -47,7 +47,7 @@ def test_asset_transport_request_creates_asset_transport_object():
     #assert
     storage.create_asset_transport_request.assert_called_once_with(source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,

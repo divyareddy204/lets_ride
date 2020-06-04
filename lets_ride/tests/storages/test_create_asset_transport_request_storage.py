@@ -10,7 +10,7 @@ def test_create_asset_transport_request_creates_asset_transport_request_object_w
     #Arrange
     source = "hyderabad"
     destination = "bangloor"
-    flexible= True
+    is_flexible= True
     datetime= None
     from_datetime = "2020-09-04 06:00:00.000000-08:00"
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
@@ -25,7 +25,7 @@ def test_create_asset_transport_request_creates_asset_transport_request_object_w
     storage.create_asset_transport_request(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,
@@ -39,7 +39,7 @@ def test_create_asset_transport_request_creates_asset_transport_request_object_w
     asset_transport_request = AssetTransportRequest.objects.get(
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,

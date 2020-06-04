@@ -9,18 +9,37 @@ def tests_for_lets_ride_apis():
     data = json.dumps(data)
     url = "http://127.0.0.1:8080/api/lets_ride/login/v1/"
     response = requests.post(url=url, data=data,headers=headers)
-
     print("response: ",response)
     response_data = json.loads(response.content)
     print("Response: ",response_data)
     access_token = response_data['access_token']
     print("access_token: ", access_token)
+
+    print("**********LoginWithinavlidMobileNumber***************")
+    data = {"mobile_number":"1234","password":"divyasathya"}
+    headers = {"Content-Type":"application/json"}
+    data = json.dumps(data)
+    url = "http://127.0.0.1:8080/api/lets_ride/login/v1/"
+    response = requests.post(url=url, data=data,headers=headers)
+    print("response: ",response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
     
+    print("**********LoginWithinavlidPassword***************")
+    data = {"mobile_number":"12345","password":"divyasathy"}
+    headers = {"Content-Type":"application/json"}
+    data = json.dumps(data)
+    url = "http://127.0.0.1:8080/api/lets_ride/login/v1/"
+    response = requests.post(url=url, data=data,headers=headers)
+    print("response: ",response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+
     print("\n*******************RideRequest***************************")
     data = {
         "source":"hyderabad",
         "destination":"bangloor",
-        "flexible":"true",
+        "is_flexible":"true",
         "no_of_seats":2,
         "luggage_quantity":2, 
         "datetime":None, 
@@ -41,7 +60,7 @@ def tests_for_lets_ride_apis():
     data = {
         "source":"hyderabad",
         "destination":"bangloor",
-        "flexible":"false", 
+        "is_flexible":"false", 
         "datetime":"2020-07-02 21:52:48.548978", 
         "no_of_assets":2,
         "deliver_person":"ram",
@@ -64,7 +83,7 @@ def tests_for_lets_ride_apis():
     data ={
         "source":"hyderabad",
         "destination":"bangloor",
-        "flexible":"false",
+        "is_flexible":"false",
         "no_of_seats_available":2,
         "assets_quantity":2, 
         "datetime":"2020-05-02 21:52:48.548978",
@@ -83,7 +102,7 @@ def tests_for_lets_ride_apis():
     data ={
         "source":"hyderabad",
         "destination":"bangloor",
-        "flexible":"true",
+        "is_flexible":"true",
         "medium":"Bus",
         "assets_quantity":2, 
         "datetime":None, 
@@ -116,8 +135,14 @@ def tests_for_lets_ride_apis():
     print(response_data)
 
     print("\n*******************GetMyAssetTranportRequests***************************")
-    url = "http://127.0.0.1:8080/api/lets_ride/my_requests/asset/v1/?limit=2&offset=26"
-    response = requests.get(headers=headers, url=url)
+    params = {
+        "limit":200,
+        "offset":0,
+        "status":"Confirmed",
+        "order": "DESC"
+    }
+    url = "http://127.0.0.1:8080/api/lets_ride/my_requests/asset/v1/"
+    response = requests.get(headers=headers, url=url, params=params)
     print("Response:", response)
     response_data = json.loads(response.content)
     print("Response: ",response_data)
@@ -132,8 +157,8 @@ def tests_for_lets_ride_apis():
     response_data = json.loads(response.content)
     print("Response: ",response_data)
     
-    print("\n*******************GetMatchingAssetRequests***************************")
-    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/asset/v1/"
+    print("\n*******************GetMatchingRideRequestsWithNegativeLimit***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/ride/v1/?limit=-10&offset=0"
     headers={"Content-Type":"application/json",
     "Authorization": f"Bearer {access_token}"}
     response = requests.get(headers=headers, url=url)
@@ -141,4 +166,58 @@ def tests_for_lets_ride_apis():
     response_data = json.loads(response.content)
     print("Response: ",response_data)
     
+    print("\n*******************GetMatchingRideRequestsWithNegativeOffset***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/ride/v1/?limit=10&offset=-2"
+    headers={"Content-Type":"application/json",
+    "Authorization": f"Bearer {access_token}"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+    
+    print("\n*****************NoMatchingRideRequestsFound***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/ride/v1/?limit=10&offset=2"
+    headers={"Content-Type":"application/json",
+    "Authorization": "Bearer 2dsqecXN3Ny8MS2V0I6yxBSPgw2B5k"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+    
+    print("\n*******************GetMatchingAssetRequests***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/asset/v1/?limit=100&offset=0"
+    headers={"Content-Type":"application/json",
+    "Authorization": f"Bearer {access_token}"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+    
+    print("\n*******************GetMatchingAssetRequestsNegetiveLimitValue***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/asset/v1/?limit=-10&offset=0"
+    headers={"Content-Type":"application/json",
+    "Authorization": f"Bearer {access_token}"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+    
+    print("\n*******************GetMatchingAssetRequestsNegetiveOffsetValue***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/asset/v1/?limit=10&offset=-1"
+    headers={"Content-Type":"application/json",
+    "Authorization": f"Bearer {access_token}"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+    
+    print("\n*****************NoMatchingAssetRequestsFound***************************")
+    url = "http://127.0.0.1:8080/api/lets_ride/matching_requests/asset/v1/?limit=10&offset=2"
+    headers={"Content-Type":"application/json",
+    "Authorization": "Bearer 2dsqecXN3Ny8MS2V0I6yxBSPgw2B5k"}
+    response = requests.get(headers=headers, url=url)
+    print("Response:", response)
+    response_data = json.loads(response.content)
+    print("Response: ",response_data)
+
 tests_for_lets_ride_apis()

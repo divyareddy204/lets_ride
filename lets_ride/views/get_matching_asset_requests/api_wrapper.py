@@ -1,9 +1,7 @@
 import json
-
 from django.http import HttpResponse
 from django_swagger_utils.drf_server.utils.decorator.interface_decorator \
     import validate_decorator
-
 from lets_ride.interactors.get_matching_asset_requests_interactor import \
    GetMatchingAssetRequests
 from lets_ride.presenters.presenter_implementation \

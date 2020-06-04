@@ -15,6 +15,13 @@ class PresenterInterface(ABC):
     @abstractmethod
     def user_login_response(self, user_access_token_dto: UserAuthTokensDTO):
         pass
+    @abstractmethod
+    def raise_exception_for_invalid_limit(self):
+        pass
+
+    @abstractmethod
+    def raise_exception_for_invalid_offset(self):
+        pass
     
     @abstractmethod
     def raise_exception_for_invalid_password(self):
@@ -42,11 +49,11 @@ class PresenterInterface(ABC):
     @abstractmethod
     def get_response_for_matching_ride_requests(
         self,matching_ride_requests: [RideRequestDto],
-        matched_user_dtos: UserDto):
+        matched_user_dtos: UserDto,limit: int,offset: int):
         pass
     
     @abstractmethod
     def get_response_for_matching_asset_requests(
         self,matching_asset_requests: [AssetRequestDto],
-        matched_user_dtos: UserDto):
+        matched_user_dtos: UserDto,limit: int,offset: int):
         pass

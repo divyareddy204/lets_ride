@@ -1,9 +1,7 @@
 import json
-
 from django.http import HttpResponse
 from django_swagger_utils.drf_server.utils.decorator.interface_decorator \
     import validate_decorator
-
 from lets_ride.interactors.get_my_asset_request_interactor import \
    GetMyAssetRequestsInteractor
 from lets_ride.presenters.presenter_implementation \
@@ -21,7 +19,7 @@ def api_wrapper(*args, **kwargs):
     offset = query_params.offset
     status = query_params.status
     sort_by = query_params.sort_by
-    order = query_params.order
+    order_by = query_params.order_by
     user_id = user.id
 
     storage = StorageImplementation()
@@ -31,7 +29,7 @@ def api_wrapper(*args, **kwargs):
     request_dict=interactor.get_my_asset_requests(
         offset =offset,
         limit=limit,
-        order=order,
+        order_by=order_by,
         sort_by=sort_by,
         status = status,
         user_id = user_id

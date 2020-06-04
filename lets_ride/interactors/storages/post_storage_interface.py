@@ -1,7 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
 from typing import List
-from .dtos import UserDto, RideRequestDto, AssetRequestDto, RideShareDto
+from .dtos import UserDto, RideRequestDto, AssetRequestDto, RideShareDto,\
+    ShareTravelInfoDto
 from datetime import datetime
 from lets_ride.constants.enums import AssetType, SensitivityType, MediumType
 
@@ -28,7 +29,7 @@ class PostStorageInterface(ABC):
     def create_ride_request(self,
                             source: str,
                             destination: str,
-                            flexible: bool,
+                            is_flexible: bool,
                             datetime: datetime,
                             from_datetime: datetime,
                             to_datetime: datetime,
@@ -41,7 +42,7 @@ class PostStorageInterface(ABC):
     def create_asset_transport_request(self,
                                     source: str,
                                     destination: str,
-                                    flexible: bool,
+                                    is_flexible: bool,
                                     datetime: datetime,
                                     from_datetime: datetime,
                                     to_datetime: datetime,
@@ -56,7 +57,7 @@ class PostStorageInterface(ABC):
     def create_share_ride(self,
                           source: str,
                             destination: str,
-                            flexible: bool,
+                            is_flexible: bool,
                             datetime: datetime,
                             from_datetime: datetime,
                             to_datetime: datetime,
@@ -70,7 +71,7 @@ class PostStorageInterface(ABC):
     def create_share_travel_info(self,
                                 source: str,
                                 destination: str,
-                                flexible: bool,
+                                is_flexible: bool,
                                 datetime: datetime,
                                 from_datetime: datetime,
                                 to_datetime: datetime,
@@ -82,7 +83,9 @@ class PostStorageInterface(ABC):
     @abstractmethod
     def get_my_ride_requests_dto(self, user_id: int,
                                  limit: int,
-                                 offset: int)->List[RideRequestDto]:
+                                 offset: int,
+                                 asc_order= bool,
+                                 sort_by= str,)->List[RideRequestDto]:
         pass
 
 
@@ -90,42 +93,54 @@ class PostStorageInterface(ABC):
     def get_my_ride_requests_dto_filter_by_active_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order= bool,
+                sort_by= str)->List[RideRequestDto]:
         pass
 
     @abstractmethod
     def get_my_ride_requests_dto_filter_by_confirmed_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order= bool,
+                sort_by= str,)->List[RideRequestDto]:
         pass
 
     @abstractmethod
     def get_my_ride_requests_dto_filter_by_expired_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order: bool,
+                sort_by: str)->List[RideRequestDto]:
         pass
 
     @abstractmethod
     def get_my_asset_requests_dto_filter_by_active_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order: bool,
+                sort_by: str)->List[RideRequestDto]:
         pass
 
     @abstractmethod
     def get_my_asset_requests_dto_filter_by_confirmed_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order: bool,
+                sort_by: str)->List[RideRequestDto]:
         pass
 
     @abstractmethod
     def get_my_asset_requests_dto_filter_by_expired_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int)->List[RideRequestDto]:
+                offset: int,
+                asc_order: bool,
+                sort_by: str)->List[RideRequestDto]:
         pass
 
 
@@ -138,35 +153,22 @@ class PostStorageInterface(ABC):
     @abstractmethod
     def get_my_asset_requests_dto(
         self, user_id: int,
-        limit: int, offset: int)->List[AssetRequestDto]:
+        limit: int, offset: int,
+        asc_order: bool,
+        sort_by: str)->List[AssetRequestDto]:
         pass
 
     @abstractmethod
-    def get_total_requests(self)->int:
+    def get_total_ride_requests(self, user_id: int)->int:
         pass
 
-    @abstractmethod
-    def get_my_ride_requests_dto_sort_by_descending_order(self,
-                user_id: int,
-                limit: int,
-                offset: int,
-                sort_by: str)->List[RideRequestDto]:
-        pass
-
-    @abstractmethod
-    def get_my_ride_requests_dto_sort_by_ascending_order(self,
-                user_id: int,
-                limit: int,
-                offset: int,
-                sort_by: str)->List[RideRequestDto]:
-        pass
 
     @abstractmethod
     def get_user_ride_shares_from_current_day(self,user_id: int)->[RideShareDto]:
         pass
 
     @abstractmethod
-    def get_total_asset_requests(self)->int:
+    def get_total_asset_requests(self, user_id: int)->int:
         pass
 
     @abstractmethod
@@ -177,7 +179,6 @@ class PostStorageInterface(ABC):
         ride_share_destination: str,
         limit: int, offset: int)->List[RideRequestDto]:
             pass
-            
 
     @abstractmethod
     def get_matching_ride_requests_dto_without_flexible_timings(
@@ -187,9 +188,14 @@ class PostStorageInterface(ABC):
         limit: int, offset: int)->List[RideRequestDto]:
             pass
 
-
     @abstractmethod
     def get_user_dtos(self, matched_persons_ids: List[int])->List[UserDto]:
+        pass
+
+    @abstractmethod
+    def get_user_travel_info_shares_from_current_day(
+        self,
+        user_id: int)->List[ShareTravelInfoDto]:
         pass
 
     @abstractmethod

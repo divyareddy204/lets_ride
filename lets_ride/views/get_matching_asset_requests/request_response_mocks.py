@@ -8,7 +8,7 @@ RESPONSE_200_JSON = """
             "source": "string",
             "destination": "string",
             "from_datetime": "string",
-            "flexible": true,
+            "is_flexible": true,
             "to_datetime": "string",
             "datetime": "string",
             "no_of_assets": 1,

@@ -9,7 +9,7 @@ def test_create_ride_request_creates_ride_request_object_with_given_details(crea
     #Arrange
     source = "hyderabad"
     destination = "bangloor"
-    flexible= True
+    is_flexible= True
     datetime= None
     from_datetime = "2020-09-04 06:00:00.000000-08:00"
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
@@ -22,7 +22,7 @@ def test_create_ride_request_creates_ride_request_object_with_given_details(crea
     storage.create_ride_request(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,
@@ -35,7 +35,7 @@ def test_create_ride_request_creates_ride_request_object_with_given_details(crea
         luggage_quantity=luggage_quantity,
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,

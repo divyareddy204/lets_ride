@@ -14,7 +14,7 @@ class CreateRideRequestInteractor:
     def create_ride_request(self,
         source: str,
         destination: str,
-        flexible: bool,
+        is_flexible: bool,
         datetime: str,
         from_datetime: str,
         to_datetime: str,
@@ -25,7 +25,7 @@ class CreateRideRequestInteractor:
         self.storage.create_ride_request(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,

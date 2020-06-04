@@ -117,7 +117,7 @@
                     "type": "string",
                     "format": "date - time"
                 },
-                "flexible": {
+                "is_flexible": {
                     "type": "boolean"
                 },
                 "to_datetime": {
@@ -132,7 +132,7 @@
             "required": [
                 "source",
                 "destination",
-                "flexible"
+                "is_flexible"
             ]
         },
         "NoOfSeats": {
@@ -653,7 +653,7 @@
         }
     },
     "paths": {
-        "/signup/v1": {
+        "/signup/v1/": {
             "post": {
                 "operationId": "create_user",
                 "summary": "Create New User",
@@ -676,7 +676,7 @@
                 }
             }
         },
-        "/login/v1": {
+        "/login/v1/": {
             "post": {
                 "operationId": "user_login",
                 "summary": "Validate User Login Details",
@@ -694,7 +694,7 @@
                 }
             }
         },
-        "/useprofile/v1": {
+        "/useprofile/v1/": {
             "get": {
                 "operationId": "get_user_profile",
                 "summary": "Get User Details",
@@ -735,7 +735,7 @@
                 }
             }
         },
-        "/user_profile/change_password/v1": {
+        "/user_profile/change_password/v1/": {
             "post": {
                 "operationId": "change_password",
                 "summary": "Change Password",
@@ -804,7 +804,7 @@
                 }
             }
         },
-        "/ride_share/v1": {
+        "/ride_share/v1/": {
             "post": {
                 "operationId": "create_share_ride",
                 "summary": "Create Share Ride",
@@ -827,7 +827,7 @@
                 }
             }
         },
-        "/share_travel_info/v1": {
+        "/share_travel_info/v1/": {
             "post": {
                 "operationId": "create_share_travel_info",
                 "summary": "Create Share Travel Info",
@@ -850,7 +850,7 @@
                 }
             }
         },
-        "/my_requests/ride/v1": {
+        "/my_requests/ride/v1/": {
             "get": {
                 "operationId": "get_my_ride_requests",
                 "summary": "Get My Ride Requests",
@@ -885,7 +885,7 @@
                         "type": "string"
                     },
                     {
-                        "name": "order",
+                        "name": "order_by",
                         "in": "query",
                         "description": "Ride Requests order",
                         "type": "string"
@@ -894,11 +894,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/responses/GetMyRequestsRideResponse"
+                    },
+                    "404": {
+                        "description": "Invalid Limit/Offset"
                     }
                 }
             }
         },
-        "/my_requests/asset/v1": {
+        "/my_requests/asset/v1/": {
             "get": {
                 "operationId": "get_my_asset_transport_requests",
                 "summary": "Get My Asset Transport Requests",
@@ -933,7 +936,7 @@
                         "type": "string"
                     },
                     {
-                        "name": "order",
+                        "name": "order_by",
                         "in": "query",
                         "description": "Ride Requests order",
                         "type": "string"
@@ -942,11 +945,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/responses/GetMyAssetTranportRequestsResponse"
+                    },
+                    "404": {
+                        "description": "Invalid Limit/Offset"
                     }
                 }
             }
         },
-        "/matching_requests/ride/v1": {
+        "/matching_requests/ride/v1/": {
             "get": {
                 "operationId": "get_matching_ride_requests",
                 "summary": "Get Matching Ride Requests",
@@ -972,11 +978,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/responses/GetMatchingRideRequestsResponse"
+                    },
+                    "404": {
+                        "description": "Invalid Limit/Offset"
                     }
                 }
             }
         },
-        "/matching_requests/asset/v1": {
+        "/matching_requests/asset/v1/": {
             "get": {
                 "operationId": "get_matching_asset_requests",
                 "summary": "Get Matching Asset Transport Requests",
@@ -1002,6 +1011,9 @@
                 "responses": {
                     "200": {
                         "$ref": "#/responses/MatchingAssetResponse"
+                    },
+                    "404": {
+                        "description": "Invalid Limit/Offset"
                     }
                 }
             }

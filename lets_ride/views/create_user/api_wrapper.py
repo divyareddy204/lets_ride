@@ -1,9 +1,7 @@
 import json
-
 from django.http import HttpResponse
 from django_swagger_utils.drf_server.utils.decorator.interface_decorator \
     import validate_decorator
-
 from fb_post_v2.interactors.create_user_interactor import \
     CreateUserInteractor
 from lets_ride.presenters.presenter_implementation \

@@ -13,7 +13,7 @@ class RideRequestDto:
     user_id: int
     source: str
     destination: str
-    flexible: bool
+    is_flexible: bool
     from_datetime: datetime
     to_datetime: datetime
     datetime: datetime
@@ -26,11 +26,23 @@ class RideShareDto:
     user_id: int
     source: str
     destination: str
-    flexible: bool
+    is_flexible: bool
     from_datetime: datetime
     to_datetime: datetime
     datetime: datetime
     no_of_seats_available: int
+    assets_quantity: int
+
+@dataclass()
+class ShareTravelInfoDto:
+    user_id: int
+    source: str
+    destination: str
+    is_flexible: bool
+    from_datetime: datetime
+    to_datetime: datetime
+    datetime: datetime
+    medium: str
     assets_quantity: int
 
 @dataclass()
@@ -50,7 +62,7 @@ class AssetRequestDto:
     user_id: int
     source: str
     destination: str
-    flexible: bool
+    is_flexible: bool
     from_datetime: datetime
     to_datetime: datetime
     datetime: datetime

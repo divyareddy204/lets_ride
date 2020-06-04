@@ -9,7 +9,7 @@ def test_create_share_ride_creates_share_ride__object_with_given_details(create_
     #Arrange
     source = "hyderabad"
     destination = "bangloor"
-    flexible= True
+    is_flexible= True
     datetime= None
     from_datetime = "2020-09-04 06:00:00.000000-08:00"
     to_datetime = "2020-09-05 06:00:00.000000-08:00"
@@ -22,7 +22,7 @@ def test_create_share_ride_creates_share_ride__object_with_given_details(create_
     storage.create_share_ride(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,
@@ -34,7 +34,7 @@ def test_create_share_ride_creates_share_ride__object_with_given_details(create_
     share_ride = ShareRide.objects.get(
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,

@@ -6,11 +6,11 @@ from lets_ride.exceptions.exceptions import InvalidPassword, \
     InvalidMobileNumber, InvalidUserName
 from typing import List
 import datetime
-from django.db.models import Q
+from django.db.models import Q, Case, CharField, Value, When
 from common.oauth2_storage import OAuth2SQLStorage
 from lets_ride.interactors.storages.dtos \
     import UserDto, RideRequestDto, AssetRequestDto, RideRequestDto,\
-    RideShareDto
+    RideShareDto, ShareTravelInfoDto
 from lets_ride.constants.enums import AssetType, SensitivityType, MediumType
 
 
@@ -33,7 +33,6 @@ class StorageImplementation(PostStorageInterface):
         except User.DoesNotExist:
             raise InvalidMobileNumber
 
-
     def create_user(self, user_name: str, mobile_number: str, password: str):
 
         User.objects.create(user_name=user_name,
@@ -53,7 +52,7 @@ class StorageImplementation(PostStorageInterface):
     def create_ride_request(self,
                             source: str,
                             destination: str,
-                            flexible: bool,
+                            is_flexible: bool,
                             datetime: datetime,
                             from_datetime: datetime,
                             to_datetime: datetime,
@@ -64,7 +63,7 @@ class StorageImplementation(PostStorageInterface):
         RideRequest.objects.create(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,
@@ -77,7 +76,7 @@ class StorageImplementation(PostStorageInterface):
     def create_asset_transport_request(self,
                                        source: str,
                                        destination: str,
-                                       flexible: bool,
+                                       is_flexible: bool,
                                        datetime: datetime,
                                        from_datetime: datetime,
                                        to_datetime: datetime,
@@ -89,7 +88,7 @@ class StorageImplementation(PostStorageInterface):
         AssetTransportRequest.objects.create(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,
@@ -103,17 +102,18 @@ class StorageImplementation(PostStorageInterface):
     def create_share_ride(self,
                         source: str,
                         destination: str,
-                        flexible: bool,
+                        is_flexible: bool,
                         datetime: datetime,
                         from_datetime: datetime,
                         to_datetime: datetime,
                         no_of_seats_available: int,
                         assets_quantity: int,
                         user_id: int):
+
             ShareRide.objects.create(
                 source=source,
                 destination=destination ,
-                flexible=flexible,
+                is_flexible=is_flexible,
                 datetime=datetime,
                 from_datetime=from_datetime,
                 to_datetime=to_datetime,
@@ -125,7 +125,7 @@ class StorageImplementation(PostStorageInterface):
     def create_share_travel_info(self,
                         source: str,
                         destination: str,
-                        flexible: bool,
+                        is_flexible: bool,
                         datetime: datetime,
                         from_datetime: datetime,
                         to_datetime: datetime,
@@ -136,7 +136,7 @@ class StorageImplementation(PostStorageInterface):
             ShareTravelInfo.objects.create(
                 source=source,
                 destination=destination ,
-                flexible=flexible,
+                is_flexible=is_flexible,
                 datetime=datetime,
                 from_datetime=from_datetime,
                 to_datetime=to_datetime,
@@ -152,21 +152,57 @@ class StorageImplementation(PostStorageInterface):
             mobile_number=user_obj.mobile_number)
         return user_dto
 
-    def get_my_ride_requests_dto(self, user_id: int, limit: int, offset: int):
-        print(user_id)
-        list_of_ride_request_objs = RideRequest.objects.filter(
-            user_id=user_id)[offset:limit]
+    def get_my_ride_requests_dto(
+        self, user_id: int,
+        limit: int, offset: int,
+        asc_order: bool, sort_by: str):
+        if sort_by=="datetime":
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                user_id=user_id).annotate(
+                    sorting_datetime=Case(
+                        When(is_flexible=True, then=Value("from_datetime")),
+                        When(is_flexible=False, then=Value("datetime")),
+                        default=Value('datetime'),
+                        output_field=CharField(),
+                    )).order_by(
+                        ("" if asc_order else "-") +"sorting_datetime")\
+                        [offset:limit]
+        else:
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                user_id=user_id).order_by(
+                    (""if asc_order else "-") + "no_of_seats")[offset:limit]
+
         return self.get_ride_request_dtos_for_given_ride_request_objects(
             list_of_ride_request_objs)
 
     def get_my_ride_requests_dto_filter_by_expired_status_value(self,
                 user_id: int,
                 limit: int,
-                offset: int):
-        list_of_ride_request_objs = RideRequest.objects.filter(
-            Q(to_datetime__lt=datetime.datetime.now(),flexible=True,)|Q(
-            datetime__lt=datetime.datetime.now(),
-            flexible=False),user_id=user_id)[offset:limit]
+                offset: int,
+                asc_order: bool,
+                sort_by: str):
+
+        if sort_by =="datetime":
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                Q(to_datetime__lt=datetime.datetime.now(),
+                  is_flexible=True,)|Q(datetime__lt=datetime.datetime.now(),
+                is_flexible=False),user_id=user_id).annotate(
+                    sorting_datetime=Case(
+                        When(is_flexible=True, then=Value("from_datetime")),
+                        When(is_flexible=False, then=Value("datetime")),
+                        default=Value('datetime'),
+                        output_field=CharField(),
+                    )).order_by(
+                        ("" if asc_order else "-") +"sorting_datetime")\
+                        [offset:limit]
+        else:
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                Q(to_datetime__lt=datetime.datetime.now(),is_flexible=True,)|Q(
+                datetime__lt=datetime.datetime.now(),
+                is_flexible=False),user_id=user_id)\
+                .order_by(
+                    (""if asc_order else "-") + "no_of_seats")[offset:limit]
+            
 
         return self.get_ride_request_dtos_for_given_ride_request_objects(
             list_of_ride_request_objs)
@@ -174,57 +210,56 @@ class StorageImplementation(PostStorageInterface):
     def get_my_ride_requests_dto_filter_by_active_status_value(self,
             user_id: int,
             limit: int,
-            offset: int):
-
-        list_of_ride_request_objs = RideRequest.objects.filter(
-            Q(to_datetime__gt=datetime.datetime.now(),flexible=True,)|Q(
-            datetime__gt=datetime.datetime.now(),
-            flexible=False),user_id=user_id)[offset:limit]
-
+            offset: int,
+            asc_order: bool,
+            sort_by: str):
+        if sort_by =="datetime":
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                Q(to_datetime__gt=datetime.datetime.now(),is_flexible=True,)\
+                |Q(datetime__gt=datetime.datetime.now(),
+                is_flexible=False),user_id=user_id).annotate(
+                    sorting_datetime=Case(
+                        When(is_flexible=True, then=Value("from_datetime")),
+                        When(is_flexible=False, then=Value("datetime")),
+                        default=Value('datetime'),
+                        output_field=CharField(),
+                    )).order_by(
+                        ("" if asc_order else "-") +"sorting_datetime")\
+                        [offset:limit]
+        else:
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                Q(to_datetime__gt=datetime.datetime.now(),is_flexible=True,)|Q(
+                datetime__gt=datetime.datetime.now(),
+                is_flexible=False),user_id=user_id)\
+                .order_by((""if asc_order else "-") + "no_of_seats")[offset:limit]
+                
         return self.get_ride_request_dtos_for_given_ride_request_objects(
             list_of_ride_request_objs)
 
     def get_my_ride_requests_dto_filter_by_confirmed_status_value(self,
             user_id: int,
             limit: int,
-            offset: int):
-        list_of_ride_request_objs = RideRequest.objects.filter(
-            user_id=user_id,accepted_person__isnull=False)[offset:limit]
-        return self.get_ride_request_dtos_for_given_ride_request_objects(
-            list_of_ride_request_objs)
-
-    def get_my_ride_requests_dto_sort_by_ascending_order(self,
-            user_id: int,
-            limit: int,
             offset: int,
-            sort_by: str):
+            sort_by: str,
+            asc_order: bool):
 
-        if sort_by == 'TO_DATETIME':
-            list_of_ride_request_objs=RideRequest.objects\
-            .filter(user_id=user_id,flexible=True)\
-            .order_by('to_datetime')[offset:limit].values()
+        if sort_by =="datetime":
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                user_id=user_id,accepted_person__isnull=False).annotate(
+                    sorting_datetime=Case(
+                            When(is_flexible=True, then=Value("from_datetime")),
+                            When(is_flexible=False, then=Value("datetime")),
+                            default=Value('datetime'),
+                            output_field=CharField(),
+                        )).order_by(
+                            ("" if asc_order else "-") +"sorting_datetime")\
+                            [offset:limit]
         else:
-            list_of_ride_request_objs=RideRequest.objects\
-            .filter(user_id=user_id,flexible=False)\
-            .order_by('datetime')[offset:limit].values()
-
-        return self.get_ride_request_dtos_for_given_ride_request_objects(
-            list_of_ride_request_objs)
-
-    def get_my_ride_requests_dto_sort_by_descending_order(self,
-            user_id: int,
-            limit: int,
-            offset: int,
-            sort_by: str):
-        if sort_by == 'TO_DATETIME':
-            list_of_ride_request_objs=RideRequest.objects\
-            .filter(user_id=user_id,flexible=True)\
-            .order_by('-to_datetime')[offset:limit].values()
-        else:
-            list_of_ride_request_objs=RideRequest.objects\
-            .filter(user_id=user_id,flexible=False)\
-            .order_by('-datetime')[offset:limit].values()
-
+            list_of_ride_request_objs = RideRequest.objects.filter(
+                user_id=user_id,accepted_person__isnull=False)\
+                .order_by(("" if asc_order else "-") +"sorting_datetime")\
+                [offset:limit]
+            
         return self.get_ride_request_dtos_for_given_ride_request_objects(
             list_of_ride_request_objs)
 
@@ -233,7 +268,7 @@ class StorageImplementation(PostStorageInterface):
         list_of_ride_requests=[]
         for request in list_of_ride_request_objs:
             if request:
-                if request.flexible:
+                if request.is_flexible:
                     ride_request_dto = self.\
                     convert_ride_request_obj_to_dto_with_flexible_timings(request)
                     list_of_ride_requests.append(ride_request_dto)
@@ -243,13 +278,12 @@ class StorageImplementation(PostStorageInterface):
                     list_of_ride_requests.append(ride_request_dto)
         return list_of_ride_requests
 
-
     def convert_ride_request_obj_to_dto_with_flexible_timings(self, request):
         ride_request_dto=RideRequestDto(
             user_id=request.user_id,
             source=request.source,
             destination=request.destination,
-            flexible=request.flexible,
+            is_flexible=request.is_flexible,
             datetime=request.datetime,
             from_datetime=request.from_datetime.replace(tzinfo=None),
             to_datetime=request.to_datetime.replace(tzinfo=None),
@@ -264,7 +298,7 @@ class StorageImplementation(PostStorageInterface):
             user_id=request.user_id,
             source=request.source,
             destination=request.destination,
-            flexible=request.flexible,
+            is_flexible=request.is_flexible,
             datetime=request.datetime.replace(tzinfo=None),
             from_datetime=request.from_datetime,
             to_datetime=request.to_datetime,
@@ -274,19 +308,19 @@ class StorageImplementation(PostStorageInterface):
             )
         return ride_request_dto
 
-    def get_total_requests(self):
-        return RideRequest.objects.all().count()
+    def get_total_ride_requests(self, user_id: int ):
+        return RideRequest.objects.filter(user_id=user_id).count()
 
-    def get_total_asset_requests(self):
-        return AssetTransportRequest.objects.all().count()
+    def get_total_asset_requests(self, user_id: int):
+        return AssetTransportRequest.objects.filter(user_id=user_id).count()
 
     def get_my_asset_requests_dto_filter_by_expired_status_value(self,
                 user_id: int,
                 limit: int,
                 offset: int):
         list_of_asset_request_objs = AssetTransportRequest.objects.filter(
-            Q(flexible=True,to_datetime__lt=datetime.datetime.now())|
-            Q(flexible=False, datetime__lt=datetime.datetime.now()),
+            Q(is_flexible=True,to_datetime__lt=datetime.datetime.now())|
+            Q(is_flexible=False, datetime__lt=datetime.datetime.now()),
             user_id=user_id)[offset:limit]
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
@@ -294,68 +328,83 @@ class StorageImplementation(PostStorageInterface):
     def get_my_asset_requests_dto_filter_by_active_status_value(self,
             user_id: int,
             limit: int,
-            offset: int):
-
-        list_of_asset_request_objs = AssetTransportRequest.objects.filter(
-            Q(flexible=True,to_datetime__gt=datetime.datetime.now())|
-            Q(flexible=False, datetime__gt=datetime.datetime.now()),
-            user_id=user_id)[offset:limit]
+            offset: int,
+            sort_by: str,
+            asc_order: bool
+            ):
+    
+        if sort_by:
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                Q(is_flexible=True,to_datetime__gt=datetime.datetime.now())|
+                Q(is_flexible=False, datetime__gt=datetime.datetime.now()),
+                user_id=user_id).annotate(
+                        sorting_datetime=Case(
+                            When(is_flexible=True, then=Value("from_datetime")),
+                            When(is_flexible=False, then=Value("datetime")),
+                            default=Value('datetime'),
+                            output_field=CharField(),
+                        )).order_by(
+                            ("" if asc_order else "-") +"sorting_datetime")\
+                            [offset:limit]
+        else:
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                Q(is_flexible=True,to_datetime__gt=datetime.datetime.now())|
+                Q(is_flexible=False, datetime__gt=datetime.datetime.now()),
+                user_id=user_id).order_by(
+                            ("" if asc_order else "-") +"no_of_assets")\
+                            [offset:limit]
 
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
-
 
     def get_my_asset_requests_dto_filter_by_confirmed_status_value(self,
             user_id: int,
             limit: int,
             offset: int,
-            status: str):
-
-        list_of_asset_request_objs = AssetTransportRequest.objects.filter(
-            user_id=user_id,accepted_person__isnull=False)[offset:limit]
-
-        return self.get_asset_request_dtos_for_given_asset_request_objects(
-            list_of_asset_request_objs)
-
-    def get_my_asset_requests_dto_sort_by_ascending_order(self,
-            user_id: int,
-            limit: int,
-            offset: int,
-            sort_by: datetime):
-
-        if sort_by=="TO_DATETIME":
-            list_of_asset_request_objs=AssetTransportRequest.\
-            objects.filter(user_id=user_id,flexible=True)\
-            .order_by('to_datetime')[offset:limit]
+            sort_by: str,
+            asc_order: bool):
+        if sort_by == "datetime":
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                user_id=user_id,accepted_person__isnull=False).annotate(
+                        sorting_datetime=Case(
+                            When(is_flexible=True, then=Value("from_datetime")),
+                            When(is_flexible=False, then=Value("datetime")),
+                            default=Value('datetime'),
+                            output_field=CharField(),
+                        )).order_by(
+                            ("" if asc_order else "-") +"sorting_datetime")\
+                            [offset:limit]
         else:
-            list_of_asset_request_objs=AssetTransportRequest.objects.filter(
-                user_id=user_id,flexible=False).\
-                order_by('datetime')[offset:limit]
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                user_id=user_id,accepted_person__isnull=False).order_by(
+                            ("" if asc_order else "-") +"no_of_assets")\
+                            [offset:limit]
 
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
 
-    def get_my_asset_requests_dto_sort_by_descending_order(self,
-            user_id: int,
-            limit: int,
-            offset: int,
-            sort_by: str):
-
-        if sort_by=="TO_DATETIME":
-            list_of_asset_request_objs=AssetTransportRequest.\
-            objects.filter(user_id=user_id,flexible=True)\
-            .order_by('-to_datetime')[offset:limit]
+    
+    def get_my_asset_requests_dto(
+        self, user_id: int,
+        limit: int, offset: int,
+        asc_order: bool, sort_by: str):
+        if sort_by == "datetime":
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                user_id=user_id).annotate(
+                            sorting_datetime=Case(
+                                When(is_flexible=True, then=Value("from_datetime")),
+                                When(is_flexible=False, then=Value("datetime")),
+                                default=Value('datetime'),
+                                output_field=CharField(),
+                            )).order_by(
+                                ("" if asc_order else "-") +"sorting_datetime")\
+                                [offset:limit]
         else:
-            list_of_asset_request_objs=AssetTransportRequest.objects.filter(
-                user_id=user_id,flexible=False).\
-                order_by('-datetime')[offset:limit]
-
-        return self.get_asset_request_dtos_for_given_asset_request_objects(
-            list_of_asset_request_objs)
-
-    def get_my_asset_requests_dto(self, user_id: int, limit: int, offset: int):
-        list_of_asset_request_objs = AssetTransportRequest.objects.filter(
-            user_id=user_id)[offset:limit]
+            list_of_asset_request_objs = AssetTransportRequest.objects.filter(
+                user_id=user_id).order_by(
+                    ("" if asc_order else "-") +"sorting_datetime")\
+                    [offset:limit]
+            
         return self.get_asset_request_dtos_for_given_asset_request_objects(
             list_of_asset_request_objs)
 
@@ -363,7 +412,7 @@ class StorageImplementation(PostStorageInterface):
         list_of_asset_request_objs):
         list_of_asset_requests=[]
         for request in list_of_asset_request_objs:
-            if request.flexible:
+            if request.is_flexible:
                 asset_request_dto = self.\
                 convert_asset_request_obj_to_dto_with_flexible_timings(request)
                 list_of_asset_requests.append(asset_request_dto)
@@ -374,11 +423,11 @@ class StorageImplementation(PostStorageInterface):
         return list_of_asset_requests
 
     def convert_asset_request_obj_to_dto_with_flexible_timings(self,request):
-        assetrequestdto =AssetRequestDto(
+        asset_request_dto =AssetRequestDto(
             user_id=request.user_id,
             source=request.source,
             destination=request.destination,
-            flexible=request.flexible,
+            is_flexible=request.is_flexible,
             datetime=request.datetime,
             from_datetime=request.from_datetime.replace(tzinfo=None),
             to_datetime=request.to_datetime.replace(tzinfo=None),
@@ -388,14 +437,14 @@ class StorageImplementation(PostStorageInterface):
             deliver_person=request.deliver_person,
             accepted_person_id=request.accepted_person_id
             )
-        return assetrequestdto
+        return asset_request_dto
 
     def convert_asset_request_obj_to_dto_without_flexible_timings(self, request):
-        assetrequestdto =AssetRequestDto(
+        asset_request_dto =AssetRequestDto(
             user_id=request.user_id,
             source=request.source,
             destination=request.destination,
-            flexible=request.flexible,
+            is_flexible=request.is_flexible,
             datetime=request.datetime.replace(tzinfo=None),
             from_datetime=request.from_datetime,
             to_datetime=request.to_datetime,
@@ -405,7 +454,7 @@ class StorageImplementation(PostStorageInterface):
             deliver_person=request.deliver_person,
             accepted_person_id=request.accepted_person_id
             )
-        return assetrequestdto
+        return asset_request_dto
 
     def get_accepted_persons_dtos(self,
     list_of_accepted_persons_ids: List[int]):
@@ -426,10 +475,9 @@ class StorageImplementation(PostStorageInterface):
     def get_user_ride_shares_from_current_day(self, user_id: int):
         current_datetime= datetime.datetime.now()
         ride_share_objects=ShareRide.objects\
-        .filter(Q(flexible=False,datetime__gt=current_datetime)|\
-        Q(flexible=True,to_datetime__gt=current_datetime),user_id=3)
+        .filter(Q(is_flexible=False,datetime__gt=current_datetime)|\
+        Q(is_flexible=True,to_datetime__gt=current_datetime),user_id=user_id)
         return self.convert_ride_share_objects_to_list_of_dtos(ride_share_objects)
-
 
     def convert_ride_share_objects_to_list_of_dtos(self, share_objs):
         list_of_share_dtos=[]
@@ -443,7 +491,7 @@ class StorageImplementation(PostStorageInterface):
             user_id=share_object.user_id,
             source=share_object.source,
             destination=share_object.destination,
-            flexible=share_object.flexible,
+            is_flexible=share_object.is_flexible,
             datetime=share_object.datetime,
             from_datetime=share_object.from_datetime,
             to_datetime=share_object.to_datetime,
@@ -451,7 +499,6 @@ class StorageImplementation(PostStorageInterface):
             assets_quantity=share_object.assets_quantity,
             )
         return ride_share_dto
-
 
     def get_matching_ride_requests_dto_with_flexible_timings(
         self,
@@ -468,14 +515,14 @@ class StorageImplementation(PostStorageInterface):
               to_datetime__gtee=ride_share_from_datetime),
             source=ride_share_source,destination=ride_share_destination
             )[offset:limit]
-    
+
         list_of_ride_requests=[]
         for request in matching_ride_request_objs:
             ride_request_dto = RideRequestDto(
                 user_id=request.user_id,
                 source=request.source,
                 destination=request.destination,
-                flexible=request.flexible,
+                is_flexible=request.is_flexible,
                 datetime=str(request.datetime),
                 from_datetime=str(request.from_datetime),
                 to_datetime=str(request.to_datetime),
@@ -504,7 +551,7 @@ class StorageImplementation(PostStorageInterface):
                 user_id=request.user_id,
                 source=request.source,
                 destination=request.destination,
-                flexible=request.flexible,
+                is_flexible=request.is_flexible,
                 datetime=str(request.datetime),
                 from_datetime=str(request.from_datetime),
                 to_datetime=str(request.to_datetime),
@@ -538,19 +585,18 @@ class StorageImplementation(PostStorageInterface):
             Q(from_datetime__gte=ride_share_from_datetime,
               from_datetime__lte=ride_share_to_datetime)|
             Q(to_datetime__lte=ride_share_to_datetime,
-              to_datetime__gtee=ride_share_from_datetime),
+              to_datetime__gte=ride_share_from_datetime),
             source=ride_share_source,destination=ride_share_destination
             )[offset:limit]
         return self.get_list_of_asset_dtos_to_asset_request_objs(
             matching_asset_request_objs)
-
 
     def get_matching_asset_requests_dto_without_flexible_timings(
         self,
         ride_share_datetime: datetime,
         ride_share_source: str,ride_share_destination: str,
         limit: int,offset: int):
-        print("*********************STORAGE*******************************",ride_share_datetime,ride_share_source,ride_share_destination)
+
         matching_asset_request_objs = AssetTransportRequest.objects.filter(
             datetime=ride_share_datetime,
             source=ride_share_source,
@@ -567,7 +613,7 @@ class StorageImplementation(PostStorageInterface):
                 user_id=request.user_id,
                 source=request.source,
                 destination=request.destination,
-                flexible=request.flexible,
+                is_flexible=request.is_flexible,
                 datetime=str(request.datetime),
                 from_datetime=str(request.from_datetime),
                 to_datetime=str(request.to_datetime),
@@ -579,3 +625,35 @@ class StorageImplementation(PostStorageInterface):
                 )
             list_of_asset_requests.append(asset_request_dto)
         return list_of_asset_requests
+
+    def get_user_travel_info_shares_from_current_day(self, user_id: int):
+        current_datetime= datetime.datetime.now()
+        share_travel_info_objects=ShareTravelInfo.objects\
+        .filter(Q(is_flexible=False,datetime__gt=current_datetime)|\
+        Q(is_flexible=True,to_datetime__gt=current_datetime),user_id=user_id)
+
+        return self.convert_share_travel_info_objects_to_list_of_dtos(
+            share_travel_info_objects)
+
+    def convert_share_travel_info_objects_to_list_of_dtos(self,
+            share_travel_info_objects):
+        list_of_share_travel_info_dtos=[]
+        for travel_info_obj in share_travel_info_objects:
+            list_of_share_travel_info_dtos.append(
+                self.convert_share_travel_info_object_to_dto(travel_info_obj)
+                )
+        return list_of_share_travel_info_dtos
+
+    def convert_share_travel_info_object_to_dto(self,travel_info_obj):
+        share_travel_info_dto = ShareTravelInfoDto(
+            user_id=travel_info_obj.user_id,
+            source=travel_info_obj.source,
+            destination=travel_info_obj.destination,
+            is_flexible=travel_info_obj.is_flexible,
+            datetime=travel_info_obj.datetime,
+            from_datetime=travel_info_obj.from_datetime,
+            to_datetime=travel_info_obj.to_datetime,
+            medium=travel_info_obj.medium,
+            assets_quantity=travel_info_obj.assets_quantity,
+            )
+        return share_travel_info_dto

@@ -6,7 +6,6 @@ from .validator_class import ValidatorClass
 @validate_decorator(validator_class=ValidatorClass)
 def api_wrapper(*args, **kwargs):
     # ---------MOCK IMPLEMENTATION---------
-
     try:
         from lets_ride.views.update_user_profile.tests.test_case_01 \
             import TEST_CASE as test_case

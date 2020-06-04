@@ -12,7 +12,7 @@ def test_ride_request_creates_ride():
     #Arrange
     source = "hyderabad"
     destination = "bangloor"
-    flexible= True
+    is_flexible= True
     datetime= ""
     from_datetime = "2020,5,28,20,00,00"
     to_datetime = "2020,5,29,09,00,00"
@@ -32,7 +32,7 @@ def test_ride_request_creates_ride():
     interactor.create_ride_request(
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,
@@ -44,7 +44,7 @@ def test_ride_request_creates_ride():
     #assert
     storage.create_ride_request.assert_called_once_with(source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,

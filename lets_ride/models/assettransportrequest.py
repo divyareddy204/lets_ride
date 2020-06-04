@@ -14,7 +14,7 @@ class AssetTransportRequest(models.Model):
     
     source=models.CharField(max_length=100)
     destination=models.CharField(max_length=100)
-    flexible=models.BooleanField()
+    is_flexible=models.BooleanField()
     datetime=models.DateTimeField(null=True)
     from_datetime=models.DateTimeField(null=True)
     to_datetime=models.DateTimeField(null=True)

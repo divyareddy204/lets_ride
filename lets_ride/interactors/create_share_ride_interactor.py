@@ -3,6 +3,7 @@ from lets_ride.interactors.storages.post_storage_interface \
 from lets_ride.interactors.presenters.presenter_interface \
     import PresenterInterface
 
+
 class CreateShareRideInteractor:
 
     def __init__(self,storage: PostStorageInterface,
@@ -13,7 +14,7 @@ class CreateShareRideInteractor:
     def create_share_ride(self,
         source: str,
         destination: str,
-        flexible: bool,
+        is_flexible: bool,
         datetime: str,
         from_datetime: str,
         to_datetime: str,
@@ -24,7 +25,7 @@ class CreateShareRideInteractor:
         self.storage.create_share_ride(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,

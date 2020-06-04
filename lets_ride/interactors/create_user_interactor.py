@@ -32,8 +32,7 @@ class CreateUserInteractor:
         except  InvalidPassword:
             self.presenter.raise_exception_for_invalid_password()
             return
-
-        service = OAuthUserAuthTokensService(oauth2_storage=self.oauth_storage)
-        user_access_dto=service.create_user_auth_tokens(user_id=user_id)
-        print(user_access_dto)
-        return self.presenter.create_user_response(user_access_dto=user_access_dto)
+        return self.storage.create_user(
+            user_name=user_name,
+            mobile_number=mobile_number,
+            password=password)

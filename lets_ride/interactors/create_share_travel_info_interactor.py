@@ -4,6 +4,7 @@ from lets_ride.interactors.presenters.presenter_interface \
     import PresenterInterface
 from lets_ride.constants.enums import MediumType
 
+
 class CreateShareTravelInfoInteractor:
 
     def __init__(self,storage: PostStorageInterface,
@@ -14,7 +15,7 @@ class CreateShareTravelInfoInteractor:
     def create_share_travel_info(self,
         source: str,
         destination: str,
-        flexible: bool,
+        is_flexible: bool,
         datetime: str,
         from_datetime: str,
         to_datetime: str,
@@ -25,7 +26,7 @@ class CreateShareTravelInfoInteractor:
         self.storage.create_share_travel_info(
             source=source,
             destination=destination ,
-            flexible=flexible,
+            is_flexible=is_flexible,
             datetime=datetime,
             from_datetime=from_datetime,
             to_datetime=to_datetime,

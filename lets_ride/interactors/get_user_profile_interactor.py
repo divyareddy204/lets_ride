@@ -4,6 +4,7 @@ from lets_ride.interactors.presenters.presenter_interface \
     import PresenterInterface
 from lets_ride.exceptions.exceptions import InvalidUserName
 
+
 class GetUserProfileInteractor():
     
     def __init__(self, storage: PostStorageInterface,

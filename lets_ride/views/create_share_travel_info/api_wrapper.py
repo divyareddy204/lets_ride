@@ -1,9 +1,7 @@
 import json
-
 from django.http import HttpResponse
 from django_swagger_utils.drf_server.utils.decorator.interface_decorator \
     import validate_decorator
-
 from lets_ride.interactors.create_share_travel_info_interactor import \
     CreateShareTravelInfoInteractor
 from lets_ride.presenters.presenter_implementation \
@@ -19,7 +17,7 @@ def api_wrapper(*args, **kwargs):
     request_data = kwargs['request_data']
     source = request_data["source"]
     destination = request_data["destination"]
-    flexible = request_data["flexible"]
+    is_flexible = request_data["is_flexible"]
     from_datetime = request_data["from_datetime"]
     to_datetime = request_data["to_datetime"]
     datetime = request_data["datetime"]
@@ -35,7 +33,7 @@ def api_wrapper(*args, **kwargs):
     interactor.create_share_travel_info(
         source=source,
         destination=destination ,
-        flexible=flexible,
+        is_flexible=is_flexible,
         datetime=datetime,
         from_datetime=from_datetime,
         to_datetime=to_datetime,

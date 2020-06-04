@@ -1,4 +1,3 @@
-
 from lets_ride.interactors.storages.post_storage_interface \
     import PostStorageInterface
 from lets_ride.interactors.presenters.presenter_interface \
@@ -7,6 +6,7 @@ from lets_ride.exceptions.exceptions import InvalidPassword, \
     InvalidMobileNumber
 from common.oauth2_storage import OAuth2SQLStorage
 from common.oauth_user_auth_tokens_service import OAuthUserAuthTokensService
+
 
 class UserLoginInteractor:
 
@@ -31,7 +31,7 @@ class UserLoginInteractor:
         except  InvalidPassword:
             self.presenter.raise_exception_for_invalid_password()
             return
-        
+
         service = OAuthUserAuthTokensService(oauth2_storage=self.oauth_storage)
         user_access_dto=service.create_user_auth_tokens(user_id=user_id)
         print(user_access_dto)

@@ -1,5 +1,6 @@
 import pytest
 from mock import create_autospec, patch
+from django_swagger_utils.drf_server.exceptions import BadRequest
 from lets_ride.interactors.get_matching_ride_requests_interactor \
     import GetMatchingRideRequests
 from lets_ride.interactors.storages.post_storage_interface \
@@ -7,11 +8,14 @@ from lets_ride.interactors.storages.post_storage_interface \
 from lets_ride.interactors.presenters.presenter_interface \
    import PresenterInterface
 
-def get_matching_ride_request_returns_list_of_user_dtos(
+def test_get_matching_ride_request_returns_list_of_user_dtos(
     ride_share_dtos, matched_ride_request_dto, matched_ride_request_response):
 
     #Arrange
     user_id = 3
+    limit = -10
+    offset = 0
+    
     expected_output = matched_ride_request_response
 
     presenter = create_autospec(PresenterInterface)
@@ -20,14 +24,15 @@ def get_matching_ride_request_returns_list_of_user_dtos(
         presenter=presenter,
         storage=storage
         )
-    storage.get_user_ride_shares_from_current_day.return_value = ride_share_dtos
-    storage.get_matching_ride_requests_dto_without_flexible_timings.\
-    return_value = matched_ride_request_response
+    presenter.raise_exception_for_invalid_limit.side_effect = BadRequest
 
     #Act
-    response = interactor.get_matching_ride_requests(user_id=user_id)
+    with pytest.raises(BadRequest):
+        interactor.get_matching_ride_requests(
+            user_id=user_id,
+            limit=limit,
+            offset=offset)
 
     #Assert
-    assert response == expected_output
-    storage.get_user_ride_shares_from_current_day.\
-    assert_called_once_with(user_id=user_id)
+    presenter.raise_exception_for_invalid_limit.\
+    assert_called_once_with()

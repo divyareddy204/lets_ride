@@ -1,20 +1,20 @@
 from typing import List
 from lets_ride.interactors.presenters.presenter_interface \
     import PresenterInterface
-from django_swagger_utils.drf_server.exceptions import NotFound, Forbidden
-from lets_ride.constants.exception_messages import INVALID_USER_NAME, \
-    INVALID_PASSWORD, INVALID_MOBILE_NUMBER
+from django_swagger_utils.drf_server.exceptions import BadRequest
+from lets_ride.constants.exception_messages import INVALID_LIMIT,\
+    INVALID_OFFSET, INVALID_MOBILE_NUMBER,INVALID_PASSWORD
 from lets_ride.interactors.storages.dtos \
     import UserDto, RideRequestWithStatusDto, MyRideRequestsDto,\
     AssetRequestWithStatusDto, MyAssetRequestsDto, \
     RideRequestDto, AssetRequestDto
 from common.dtos import UserAuthTokensDTO
-    
+
 
 class PresenterImplementation(PresenterInterface):
 
     def create_user_response(self, user_oauth_dto: UserAuthTokensDTO):
-        
+
         user_details = {
             "user_id": user_oauth_dto.user_id,
             "access_token": user_oauth_dto.access_token,
@@ -22,9 +22,15 @@ class PresenterImplementation(PresenterInterface):
             "expires_in": user_oauth_dto.expires_in
             }
         return user_details
-    
+
+    def raise_exception_for_invalid_limit(self):
+        raise BadRequest(*INVALID_LIMIT)
+
+    def raise_exception_for_invalid_offset(self):
+        raise BadRequest(*INVALID_OFFSET)
+
     def user_login_response(self, user_access_token_dto: UserAuthTokensDTO):
-        
+
         user_details = {
             "user_id": user_access_token_dto.user_id,
             "access_token": user_access_token_dto.access_token,
@@ -35,14 +41,14 @@ class PresenterImplementation(PresenterInterface):
 
     def raise_exception_for_invalid_mobile_number(self):
 
-        raise NotFound(*INVALID_MOBILE_NUMBER)
-    
+        raise BadRequest(*INVALID_MOBILE_NUMBER)
+
     def raise_exception_for_invalid_password(self):
 
-        raise NotFound(*INVALID_PASSWORD)
+        raise BadRequest(*INVALID_PASSWORD)
 
     def get_user_profile_response(self, user_profile_dto: UserDto):
-        
+
         user_profile = {
             "user_id": user_profile_dto.user_id,
             "user_name": user_profile_dto.user_name,
@@ -73,8 +79,8 @@ class PresenterImplementation(PresenterInterface):
                 ride_request_with_status.ride_request_dto,
                 ride_request_with_status.status, user_dtos))
         return list_of_status_dicts
-    
-    
+
+
     def convert_ride_request_dto_to_dict(self, ride_request_dto,
         status, user_dtos):
         user_dict ={}
@@ -85,7 +91,7 @@ class PresenterImplementation(PresenterInterface):
             "source": ride_request_dto.source,
             "user_id": ride_request_dto.user_id,
             "destination": ride_request_dto.destination,
-            "flexible": ride_request_dto.flexible,
+            "is_flexible": ride_request_dto.is_flexible,
             "datetime": str(ride_request_dto.datetime),
             "from_datetime": str(ride_request_dto.from_datetime),
             "to_datetime": str(ride_request_dto.to_datetime),
@@ -122,19 +128,20 @@ class PresenterImplementation(PresenterInterface):
                 asset_request_with_status.asset_request_dto,
                 asset_request_with_status.status, user_dtos))
         return list_of_status_dicts
-    
-    
+
+
     def convert_asset_request_dto_to_dict(self, asset_request_dto,
         status, user_dtos):
         user_dict ={}
         for user_dto in user_dtos:
             if(asset_request_dto.accepted_person_id==user_dto.user_id):
                 user_dict=self.get_accepted_persons_details_dict(user_dto)
+
         asset_request_dict= {
             "source": asset_request_dto.source,
             "user_id": asset_request_dto.user_id,
             "destination": asset_request_dto.destination,
-            "flexible": asset_request_dto.flexible,
+            "is_flexible": asset_request_dto.is_flexible,
             "datetime": str(asset_request_dto.datetime),
             "from_datetime": str(asset_request_dto.from_datetime),
             "to_datetime": str(asset_request_dto.to_datetime),
@@ -154,22 +161,27 @@ class PresenterImplementation(PresenterInterface):
             "mobile_number":user_dto.mobile_number
             }
             return user_dict
-    
+
     def get_user_details(self, user_dtos):
         list_user_dicts=[]
         for user_dto in user_dtos:
             user_dict=self.convert_user_dto_to_dict(user_dto)
             list_user_dicts.append(user_dict)
         return list_user_dicts
-    
-    
+
     def get_response_for_matching_ride_requests(
         self,matching_ride_requests: [RideRequestDto],
-        matched_user_dtos: UserDto):
-        list_of_ride_request_dicts =[self.convert_matching_ride_request_dto_to_dict(
-            ride_request_dto,matched_user_dtos) for ride_request_dto in matching_ride_requests]
-        return list_of_ride_request_dicts
-    
+        matched_user_dtos: UserDto, limit: int, offset:int):
+        list_of_ride_request_dicts =[self.
+        convert_matching_ride_request_dto_to_dict(ride_request_dto,
+        matched_user_dtos) for ride_request_dto in matching_ride_requests]
+        matching_rides = {
+            "matching_ride_requests": list_of_ride_request_dicts,
+            "limit": limit,
+            "offset": offset,
+        }
+        return matching_rides
+
     def convert_matching_ride_request_dto_to_dict(self,ride_request_dto,user_dtos):
         user_dict ={}
         for user_dto in user_dtos:
@@ -180,28 +192,31 @@ class PresenterImplementation(PresenterInterface):
             "source": ride_request_dto.source,
             "user_id": ride_request_dto.user_id,
             "destination": ride_request_dto.destination,
-            "flexible": ride_request_dto.flexible,
+            "is_flexible": ride_request_dto.is_flexible,
             "datetime": str(ride_request_dto.datetime),
             "from_datetime": str(ride_request_dto.from_datetime),
             "to_datetime": str(ride_request_dto.to_datetime),
             "no_of_seats": ride_request_dto.no_of_seats,
             "luggage_quantity": ride_request_dto.luggage_quantity,
             "accepted_person": user_dict,
-            "request_type": "RIDE"
         }
         return ride_request_dict
-        
+
     def get_response_for_matching_asset_requests(
         self,matching_asset_requests: [AssetRequestDto],
-        matched_user_dtos: UserDto):
-            
-        list_of_asset_request_dicts =[self.
+        matched_user_dtos: UserDto, limit: int, offset: int):
+
+        list_of_asset_request_dicts =[self.\
         convert_matching_asset_request_dto_to_dict(
-            asset_request_dto,matched_user_dtos) for asset_request_dto 
+            asset_request_dto,matched_user_dtos) for asset_request_dto
             in matching_asset_requests]
-            
-        return list_of_asset_request_dicts
-    
+        matching_assets = {
+            "matching_asset_requests": list_of_asset_request_dicts,
+            "limit": limit,
+            "offset": offset,
+        }
+        return matching_assets
+
     def convert_matching_asset_request_dto_to_dict(self,asset_request_dto,user_dtos):
         user_dict ={}
         for user_dto in user_dtos:
@@ -212,7 +227,7 @@ class PresenterImplementation(PresenterInterface):
             "source": asset_request_dto.source,
             "user_id": user_dict,
             "destination": asset_request_dto.destination,
-            "flexible": asset_request_dto.flexible,
+            "is_flexible": asset_request_dto.is_flexible,
             "datetime": str(asset_request_dto.datetime),
             "from_datetime": str(asset_request_dto.from_datetime),
             "to_datetime": str(asset_request_dto.to_datetime),
@@ -220,6 +235,5 @@ class PresenterImplementation(PresenterInterface):
             "asset_type": asset_request_dto.asset_type,
             "sensitivity":asset_request_dto.sensitivity,
             "deliver_person": asset_request_dto.deliver_person,
-            "request_type": "ASSET"
         }
         return asset_request_dict
